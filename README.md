@@ -98,8 +98,17 @@ This creates `sjr-core-rankings-1.1.0.xpi` ready for installation.
 
 ## License
 
-MIT License
+This project is licensed under the GNU General Public License v3.0 (GPLv3).
+See the [LICENSE](LICENSE) file for details.
 
 ## Author
 
-Ben Stephens
+**Ben Stephens**
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Support
+
+If you encounter any issues or have suggestions, please open an issue on the [GitHub repository](https://github.com/ben-AI-cybersec/sjr-core-rankings-zotero-plugin).

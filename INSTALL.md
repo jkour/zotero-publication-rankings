@@ -1,5 +1,11 @@
 # Installation Guide
 
+## SJR & CORE Rankings Plugin for Zotero 7
+
+**Author:** Ben Stephens  
+**License:** GNU General Public License v3.0 (GPLv3)  
+**Repository:** https://github.com/ben-AI-cybersec/sjr-core-rankings-zotero-plugin
+
 ## Quick Start
 
 1. **Download the Plugin**
@@ -121,4 +127,11 @@ To update the ranking data:
 
 ## Support
 
-For issues or questions, please check the README.md file or contact the developer.
+For issues or questions:
+- Check the [README.md](README.md) file
+- Open an issue on [GitHub](https://github.com/ben-AI-cybersec/sjr-core-rankings-zotero-plugin/issues)
+
+---
+
+**Copyright © 2025 Ben Stephens**  
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

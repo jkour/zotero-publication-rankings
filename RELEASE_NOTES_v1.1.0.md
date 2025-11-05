@@ -1,5 +1,9 @@
 # Version 1.1.0 Release Summary
 
+**Author:** Ben Stephens  
+**License:** GNU General Public License v3.0 (GPLv3)  
+**Repository:** https://github.com/ben-AI-cybersec/sjr-core-rankings-zotero-plugin
+
 ## Major Changes
 
 ### Custom Column Instead of Series Field
@@ -112,6 +116,8 @@ Potential enhancements:
 
 ---
 
-**Package:** `sjr-core-rankings-1.1.0.xpi` (0.42 MB)
-**Release Date:** 2024
-**Plugin ID:** `sjr-core-rankings@zotero.org`
+**Package:** `sjr-core-rankings-1.1.0.xpi` (0.42 MB)  
+**Release Date:** November 2025  
+**Plugin ID:** `sjr-core-rankings@zotero.org`  
+**Copyright:** © 2025 Ben Stephens  
+**License:** GPLv3
