@@ -10,7 +10,6 @@ A Zotero plugin that automatically displays journal and conference rankings in a
 - **Color-Coded Display**: Green (Q1/A*) → Blue (Q2/A) → Orange (Q3/B) → Red (Q4/C)
 - **Smart Matching**: 8 fuzzy matching strategies handle title variations and acronyms
 - **Automatic Updates**: Rankings appear when items are added or viewed
-- **86% Match Rate**: Successfully matches most eligible items
 
 ## Installation
 
@@ -23,7 +22,7 @@ A Zotero plugin that automatically displays journal and conference rankings in a
 
 Rankings automatically appear in the Ranking column when you view items.
 
-### Manual Check (Optional)
+### Manual Check (Coming soon)
 
 To see statistics about ranking matches for selected items:
 1. Select one or more items in your library
@@ -75,21 +74,29 @@ This creates `sjr-core-rankings-1.1.0.xpi` ready for installation.
 ## Project Structure
 
 ```
-├── update-scripts/                    # Data extraction scripts
-│   ├── scimagojr 2024.csv            # SJR source data
-│   ├── full_CORE.csv                 # CORE source data
-│   ├── extract_sjr.py                # Extract SJR rankings
-│   ├── extract_full_core.py          # Extract CORE rankings
-│   └── generate_data_js.py           # Combine into data.js
-└── sjr-core-rankings-zotero-plugin/  # Plugin source code
-    ├── manifest.json                 # Plugin metadata
-    ├── bootstrap.js                  # Plugin lifecycle
-    ├── rankings.js                   # Main logic
-    ├── data.js                       # Rankings data (2.2MB)
-    ├── preferences.xhtml             # Settings UI
-    ├── logo.svg                      # Plugin icon
-    └── build.ps1                     # Build script
+sjr-core-rankings-zotero-plugin/
+├── update-scripts/                   # Data extraction scripts
+│   ├── scimagojr 2024.csv           # SJR source data
+│   ├── full_CORE.csv                # CORE source data
+│   ├── extract_sjr.py               # Extract SJR rankings
+│   ├── extract_full_core.py         # Extract CORE rankings
+│   └── generate_data_js.py          # Combine into data.js
+├── content/                          # Plugin content (loaded by bootstrap)
+│   ├── data.js                      # Rankings data (2.2MB)
+│   └── rankings.js                  # Main plugin logic (copied during build)
+├── manifest.json                     # Plugin metadata
+├── bootstrap.js                      # Plugin lifecycle hooks
+├── rankings.js                       # Source: Main plugin logic
+├── preferences.xhtml                 # Settings UI
+├── logo.svg                          # Plugin icon
+├── build.ps1                         # Build script (creates XPI)
+├── README.md                         # This file
+├── CHANGELOG.md                      # Version history
+├── INSTALL.md                        # Installation guide
+└── LICENSE                           # GPLv3 license
 ```
+
+**Note:** The `content/` directory is used for files that are loaded by the bootstrap script. During the build process, `rankings.js` is copied to `content/` along with `data.js`.
 
 ## Data Sources
 

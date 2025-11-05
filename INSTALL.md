@@ -9,14 +9,14 @@
 ## Quick Start
 
 1. **Download the Plugin**
-   - The plugin file is: `sjr-core-rankings-1.0.0.xpi` (0.41 MB)
+   - The plugin file is: `sjr-core-rankings-x.x.x.xpi`
 
 2. **Install in Zotero 7**
    - Open Zotero 7
    - Go to **Tools → Add-ons** (or press Ctrl+Shift+A)
    - Click the **gear icon** (⚙️) in the top-right corner
    - Select **"Install Add-on From File..."**
-   - Navigate to and select `sjr-core-rankings-1.0.0.xpi`
+   - Navigate to and select `sjr-core-rankings-x.x.x.xpi`
    - Click **"Install Now"** when prompted
    - Restart Zotero if required
 
@@ -60,8 +60,6 @@ The plugin uses 8 different fuzzy matching strategies:
 6. Conference title cleaning (removes years, ordinals)
 7. Multiple field checking (publicationTitle, proceedingsTitle, conferenceName)
 
-**Expected match rate**: 86% for eligible items (journals and conferences in the databases)
-
 ## Configuration
 
 ### Disable Auto-Update
@@ -84,9 +82,7 @@ To re-enable, change it back to `true`.
 - Manual updates may be needed for obscure venues
 
 **No menu item appears**
-- Make sure you're using Zotero 7 (not earlier versions)
-- Try restarting Zotero after installation
-- Check Tools → Add-ons to verify the plugin is enabled
+- Known issue
 
 **Plugin doesn't update items**
 - Verify items have a publication title, proceedings title, or conference name

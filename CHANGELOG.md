@@ -5,6 +5,9 @@ All notable changes to the SJR & CORE Rankings plugin for Zotero will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-11-05
+Refactoring for initial release
+
 ## [1.1.0] - 2025-11-04
 
 ### Changed
@@ -40,10 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Conferences**: A*, A, B, C, B [2018], C [2014]
 - **Australasian**: Au A, Au B, Au C
 - **National**: Nat US, Nat AU, etc.
-- **Other**: TBR (To Be Ranked), Unranked
+- **Other**: TBR (To Be Ranked), Unranked as -
 
 ### Technical Details
 - Uses Zotero.Notifier API for item event monitoring
 - Checks publicationTitle, proceedingsTitle, and conferenceName fields
-- Only updates items with empty Series fields (automatic mode)
-- Manual mode overwrites existing Series values
