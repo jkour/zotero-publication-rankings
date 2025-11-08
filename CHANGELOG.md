@@ -5,6 +5,19 @@ All notable changes to the SJR & CORE Rankings plugin for Zotero will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2025-11-08
+
+### Fixed
+- Fixed global variable scope issue preventing plugin from loading
+- Fixed menu item not appearing in Tools menu (now uses correct `menu_ToolsPopup` ID)
+- Fixed `ZoteroPane is not defined` error when using "Check Rankings" menu item
+- Added window tracking to prevent duplicate UI elements
+
+### Changed
+- Removed unnecessary sandbox/context approach for simpler script loading
+- Improved error handling and debug logging
+- Menu item now correctly passes window context to ranking checker
+
 ## [1.1.1] - 2025-11-05
 Refactoring for initial release
 
