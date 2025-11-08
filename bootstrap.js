@@ -39,18 +39,6 @@ async function startup({ id, version, rootURI }) {
 	log("STARTUP CALLED - Version: " + version);
 	log("========================================");
 	
-	// Set default preferences if not already set
-	if (Zotero.Prefs.get('extensions.sjr-core-rankings.autoUpdate') === undefined) {
-		Zotero.Prefs.set('extensions.sjr-core-rankings.autoUpdate', true);
-	}
-	
-	// Set CORE database preference (enabled by default)
-	if (Zotero.Prefs.get('extensions.sjr-core-rankings.enableCORE') === undefined) {
-		Zotero.Prefs.set('extensions.sjr-core-rankings.enableCORE', true);
-	}
-	
-	log("Preferences set");
-	
 	// Register preference pane using official Zotero 7 API
 	log("Registering preference pane");
 	Zotero.PreferencePanes.register({
@@ -103,7 +91,12 @@ function onMainWindowUnload({ window }) {
 /**
  * Called when the extension is shutting down
  */
-function shutdown({ id, version, resourceURI, rootURI }) {
+function shutdown({ id, version, rootURI }, reason) {
+	// Skip cleanup on app shutdown for better performance
+	if (reason === APP_SHUTDOWN) {
+		return;
+	}
+	
 	log("Shutting down plugin");
 	
 	if (Zotero.SJRCoreRankings) {

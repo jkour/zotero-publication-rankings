@@ -30,6 +30,7 @@ New-Item -ItemType Directory -Path $tempDir | Out-Null
 $filesToInclude = @(
     "manifest.json",
     "bootstrap.js",
+    "prefs.js",
     "logo.svg",
     "preferences.xhtml",
     "data.js",

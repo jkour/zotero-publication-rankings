@@ -47,7 +47,7 @@ ZoteroRankings = {
 		try {
 			this.columnDataKey = await Zotero.ItemTreeManager.registerColumn({
 				dataKey: 'sjr-core-ranking',  // More unique dataKey
-				label: 'Ranking',
+				label: 'Ranking',  // Will be replaced by Fluent when available
 				pluginID: 'sjr-core-rankings@zotero.org',
 				dataProvider: (item, dataKey) => {
 					return this.getRankingSync(item);
@@ -145,7 +145,7 @@ ZoteroRankings = {
 		// Create menu item
 		var menuItem = doc.createXULElement('menuitem');
 		menuItem.id = 'zotero-rankings-update';
-		menuItem.setAttribute('label', 'Check Rankings for Selected Items');
+		menuItem.setAttribute('label', 'Check SJR & CORE Rankings');
 		menuItem.addEventListener('command', () => {
 			this.updateSelectedItems(window);  // Pass window to get ZoteroPane
 		});
@@ -594,17 +594,18 @@ ZoteroRankings = {
 				}
 			}
 			
-			var message = "Total selected: " + items.length + " items\n" +
-				   "Rankings found: " + found + " items\n" +
-				   "Not found: " + notFound + " items\n" +
-				   "Skipped: " + skipped + " items (no publication title or not regular items)\n\n" +
+			var message = "Total selected: " + items.length + " item" + (items.length !== 1 ? "s" : "") + "\n" +
+				   "Rankings found: " + found + " item" + (found !== 1 ? "s" : "") + "\n" +
+				   "Not found: " + notFound + " item" + (notFound !== 1 ? "s" : "") + "\n" +
+				   "Skipped: " + skipped + " item" + (skipped !== 1 ? "s" : "") + " (no publication title or not regular items)\n\n" +
 				   "Rankings are displayed in the 'Ranking' column.\n" +
 				   "Right-click the column headers to show/hide it.";
 			
 			// Show first 10 not found titles for debugging
 			if (notFoundList.length > 0) {
-				message += "\n\nFirst 10 not found titles:";
-				for (var j = 0; j < Math.min(10, notFoundList.length); j++) {
+				var displayCount = Math.min(10, notFoundList.length);
+				message += "\n\nFirst " + displayCount + " not found title" + (displayCount !== 1 ? "s" : "") + ":";
+				for (var j = 0; j < displayCount; j++) {
 					message += "\n" + (j + 1) + ". " + notFoundList[j];
 				}
 			}
