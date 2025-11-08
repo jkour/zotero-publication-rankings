@@ -60,23 +60,20 @@ async function startup({ id, version, rootURI }) {
 	});
 	log("Preference pane registered");
 	
-	// Create context for scripts
-	const ctx = { rootURI, id, version };
-	ctx._globalThis = ctx;
-	
-	// Load the ranking data and code with context (files are in root of XPI)
+	// Load the ranking data and code (files are in root of XPI)
+	// Load directly without sandbox for simpler global variable access
 	log("rootURI: " + rootURI);
 	log("Loading data.js from: " + rootURI + 'data.js');
 	
-	Services.scriptloader.loadSubScript(rootURI + 'data.js', ctx);
+	Services.scriptloader.loadSubScript(rootURI + 'data.js');
 	log("data.js loaded successfully");
 	
-	Services.scriptloader.loadSubScript(rootURI + 'rankings.js', ctx);
+	Services.scriptloader.loadSubScript(rootURI + 'rankings.js');
 	log("rankings.js loaded successfully");
 	
 	// Attach to Zotero object for global access
 	if (!Zotero.SJRCoreRankings) {
-		Zotero.SJRCoreRankings = ctx.ZoteroRankings;
+		Zotero.SJRCoreRankings = ZoteroRankings;
 	}
 	
 	log("Plugin attached to Zotero.SJRCoreRankings");

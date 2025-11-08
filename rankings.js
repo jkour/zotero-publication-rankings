@@ -20,15 +20,20 @@
 
 /* global ZoteroPane, sjrRankings, coreRankings */
 
+// Declare as global variable (no 'var' inside if-block to avoid local scope)
 if (typeof ZoteroRankings === 'undefined') {
-	ZoteroRankings = {
-		id: null,
-		version: null,
-		rootURI: null,
-		notifierID: null,
-		columnDataKey: null,
-		
-		init: async function({ id, version, rootURI }) {
+	var ZoteroRankings;
+}
+
+ZoteroRankings = {
+	id: null,
+	version: null,
+	rootURI: null,
+	notifierID: null,
+	columnDataKey: null,
+	windows: new Set(),  // Track windows we've added UI to
+	
+	init: async function({ id, version, rootURI }) {
 			Zotero.debug("========================================");
 			Zotero.debug("SJR & CORE Rankings: init() CALLED");
 			Zotero.debug("========================================");
@@ -115,7 +120,12 @@ if (typeof ZoteroRankings === 'undefined') {
 	},
 	
 	addToWindow: function(window) {
-		// Add menu item to Tools menu
+		// Avoid adding twice to the same window
+		if (this.windows.has(window)) {
+			Zotero.debug("SJR & CORE Rankings: Window already has UI, skipping");
+			return;
+		}
+		
 		var doc = window.document;
 		
 		Zotero.debug("SJR & CORE Rankings: Adding menu to window");
@@ -129,22 +139,46 @@ if (typeof ZoteroRankings === 'undefined') {
 			return;
 		}
 		
-		// Check Rankings menu item
+		// Mark this window as processed
+		this.windows.add(window);
+		
+		// Create menu item
 		var menuItem = doc.createXULElement('menuitem');
 		menuItem.id = 'zotero-rankings-update';
 		menuItem.setAttribute('label', 'Check Rankings for Selected Items');
-		menuItem.addEventListener('command', function() {
-			ZoteroRankings.updateSelectedItems();
+		menuItem.addEventListener('command', () => {
+			this.updateSelectedItems(window);  // Pass window to get ZoteroPane
 		});
 		
-		// Try the Tools menu (zotero-tb-actions-popup is the popup ID)
-		var toolsMenu = doc.getElementById('zotero-tb-actions-popup');
+		// Try multiple possible menu locations
+		// First try: Tools menu popup (Zotero 7 standard location)
+		var toolsMenu = doc.getElementById('menu_ToolsPopup');
+		if (toolsMenu) {
+			// Add separator before our item for visual grouping
+			var separator = doc.createXULElement('menuseparator');
+			separator.id = 'zotero-rankings-separator';
+			toolsMenu.appendChild(separator);
+			
+			toolsMenu.appendChild(menuItem);
+			Zotero.debug("SJR & CORE Rankings: Menu item added to Tools menu (menu_ToolsPopup)");
+			return;
+		}
+		
+		// Fallback: Try toolbar actions popup
+		toolsMenu = doc.getElementById('zotero-tb-actions-popup');
 		if (toolsMenu) {
 			toolsMenu.appendChild(menuItem);
-			Zotero.debug("SJR & CORE Rankings: Menu item added to Tools menu");
-		} else {
-			Zotero.debug("SJR & CORE Rankings: ERROR - Could not find Tools menu (zotero-tb-actions-popup)");
+			Zotero.debug("SJR & CORE Rankings: Menu item added to toolbar actions popup");
+			return;
 		}
+		
+		// If we get here, no menu was found
+		Zotero.debug("SJR & CORE Rankings: WARNING - Could not find any suitable menu to attach to");
+		Zotero.debug("SJR & CORE Rankings: Available menu IDs: " + 
+			Array.from(doc.querySelectorAll('[id*="menu"], [id*="popup"]'))
+				.map(el => el.id)
+				.filter(id => id)
+				.join(', '));
 	},
 	
 	removeFromAllWindows: function() {
@@ -165,10 +199,24 @@ if (typeof ZoteroRankings === 'undefined') {
 	},
 	
 	removeFromWindow: function(window) {
+		if (!this.windows.has(window)) {
+			return;
+		}
+		
+		this.windows.delete(window);
+		
 		var doc = window.document;
+		
+		// Remove menu item
 		var menuItem = doc.getElementById('zotero-rankings-update');
 		if (menuItem) {
 			menuItem.remove();
+		}
+		
+		// Remove separator
+		var separator = doc.getElementById('zotero-rankings-separator');
+		if (separator) {
+			separator.remove();
 		}
 	},
 	
@@ -477,7 +525,15 @@ if (typeof ZoteroRankings === 'undefined') {
 		},
 		
 		// Main function to update selected items (now just shows statistics without modifying items)
-		updateSelectedItems: async function() {
+		updateSelectedItems: async function(window) {
+			// Get ZoteroPane from the window context
+			var ZoteroPane = window.ZoteroPane;
+			
+			if (!ZoteroPane) {
+				Zotero.debug("SJR & CORE Rankings: ZoteroPane not available in this window");
+				return;
+			}
+			
 			var items = ZoteroPane.getSelectedItems();
 			var found = 0;
 			var notFound = 0;
@@ -539,5 +595,4 @@ if (typeof ZoteroRankings === 'undefined') {
 			
 			await Zotero.alert(window, "Rankings Check Complete", message);
 		}
-	};
-}
+};
