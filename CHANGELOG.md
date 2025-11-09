@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.3] - 2025-11-09
 
+### Added
+- **Progress window** - visual feedback when checking rankings for large selections
+  - Shows "Checking N items..." with spinner
+  - Updates progress every 10 items
+  - Displays final statistics with success icon
+  - Auto-closes after 3 seconds
+
 ### Fixed
 - **Manual ranking persistence** - Fixed bug where manual rankings weren't persisting across Zotero restarts
   - Added required third parameter `true` to `Zotero.Prefs.set()` for global preference storage
@@ -22,15 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Debug matching mode** - detailed logging shows all matching strategies attempted
 - **Manual ranking override** - right-click context menu to manually set rankings for mismatches
 - **Column sorting** - rankings now sort correctly in item tree (best to worst)
-- **Progress window** - visual feedback when checking rankings for large selections
-  - Shows "Checking N items..." with spinner
-  - Updates progress every 10 items
-  - Displays final statistics with success icon
-  - Auto-closes after 3 seconds
 - Context menu: "Debug Match for Selected Items" shows detailed algorithm output
 - Context menu: "Set Manual Ranking..." allows correcting false positives
 - Context menu: "Clear Manual Ranking" reverts to automatic matching
-- Manual overrides persist and survive Zotero restarts
 
 ### Fixed
 - Fixed global variable scope issue preventing plugin from loading
