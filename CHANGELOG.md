@@ -5,12 +5,28 @@ All notable changes to the SJR & CORE Rankings plugin for Zotero will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2025-11-09
+
+### Fixed
+- **Manual ranking persistence** - Fixed bug where manual rankings weren't persisting across Zotero restarts
+  - Added required third parameter `true` to `Zotero.Prefs.set()` for global preference storage
+  - Added robust JSON parsing with fallback for corrupted preference data
+  - Manual overrides now correctly saved and loaded on startup
+- **Dialog prompt compatibility** - Fixed Zotero 7 compatibility issue with manual ranking dialog
+  - Replaced deprecated XPCOM Components API with modern Services API
+  - Dialog now displays correctly when setting manual rankings
+
 ## [1.1.2] - 2025-11-08
 
 ### Added
 - **Debug matching mode** - detailed logging shows all matching strategies attempted
 - **Manual ranking override** - right-click context menu to manually set rankings for mismatches
 - **Column sorting** - rankings now sort correctly in item tree (best to worst)
+- **Progress window** - visual feedback when checking rankings for large selections
+  - Shows "Checking N items..." with spinner
+  - Updates progress every 10 items
+  - Displays final statistics with success icon
+  - Auto-closes after 3 seconds
 - Context menu: "Debug Match for Selected Items" shows detailed algorithm output
 - Context menu: "Set Manual Ranking..." allows correcting false positives
 - Context menu: "Clear Manual Ranking" reverts to automatic matching

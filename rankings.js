@@ -561,7 +561,7 @@ ZoteroRankings = {
 				.trim();
 			return cleaned;
 		},
-				// Main function to update selected items (now just shows statistics without modifying items)
+				// Main function to update selected items with progress window
 		updateSelectedItems: async function(window) {
 			// Get ZoteroPane from the window context
 			var ZoteroPane = window.ZoteroPane;
@@ -572,67 +572,108 @@ ZoteroRankings = {
 			}
 			
 			var items = ZoteroPane.getSelectedItems();
-			var found = 0;
-			var notFound = 0;
-			var skipped = 0;
-			var notFoundList = [];  // Track titles that weren't found
 			
 			if (items.length === 0) {
 				await Zotero.alert(window, "No items selected", "Please select some items in your Zotero library first.");
 				return;
 			}
 			
-			for (var i = 0; i < items.length; i++) {
-				var item = items[i];
+			// Create progress window with proper configuration
+			var progressWin = new Zotero.ProgressWindow({ closeOnClick: true });
+			progressWin.changeHeadline("Checking SJR & CORE Rankings");
+			progressWin.show();
+			
+			var found = 0;
+			var notFound = 0;
+			var skipped = 0;
+			var notFoundList = [];  // Track titles that weren't found
+			
+			try {
+				// Create progress line using ItemProgress
+				var progressIcon = 'chrome://zotero/skin/spinner-16px.png';
+				var progressLine = new progressWin.ItemProgress(
+					progressIcon,
+					"Checking " + items.length + " item" + (items.length !== 1 ? "s" : "") + "..."
+				);
 				
-				// Skip non-regular items and attachments
-				if (!item.isRegularItem()) {
-					skipped++;
-					continue;
+				for (var i = 0; i < items.length; i++) {
+					var item = items[i];
+					
+					// Update progress text every 10 items or on last item
+					if (i % 10 === 0 || i === items.length - 1) {
+						progressLine.setText("Processed " + (i + 1) + " of " + items.length + " items...");
+						progressLine.setProgress(Math.round((i + 1) / items.length * 100));
+					}
+					
+					// Skip non-regular items and attachments
+					if (!item.isRegularItem()) {
+						skipped++;
+						continue;
+					}
+					
+					var publicationTitle = item.getField('publicationTitle');
+					if (!publicationTitle) {
+						// For conference papers, try proceedings title
+						publicationTitle = item.getField('proceedingsTitle');
+					}
+					if (!publicationTitle) {
+						// Also try conference name field
+						publicationTitle = item.getField('conferenceName');
+					}
+					if (!publicationTitle) {
+						skipped++;
+						continue;
+					}
+					
+					// Check if ranking can be found
+					var ranking = this.getRankingSync(item);
+					if (ranking) {
+						found++;
+					} else {
+						notFound++;
+						notFoundList.push(publicationTitle.trim());
+					}
 				}
 				
-				var publicationTitle = item.getField('publicationTitle');
-				if (!publicationTitle) {
-					// For conference papers, try proceedings title
-					publicationTitle = item.getField('proceedingsTitle');
-				}
-				if (!publicationTitle) {
-					// Also try conference name field
-					publicationTitle = item.getField('conferenceName');
-				}
-				if (!publicationTitle) {
-					skipped++;
-					continue;
+				// Mark the original line as complete
+				progressLine.setText("Processing complete...");
+				progressLine.setProgress(100);
+				
+				// Create a new line for the final results with success icon
+				var successIcon = 'chrome://zotero/skin/tick.png';
+				var resultsLine = new progressWin.ItemProgress(
+					successIcon,
+					"Complete! Found: " + found + " | Not found: " + notFound + " | Skipped: " + skipped
+				);
+				resultsLine.setProgress(100);
+				
+				// Start auto-close timer AFTER operation completes
+				progressWin.startCloseTimer(4000);
+				
+				// Build detailed message for alert dialog
+				var message = "Total selected: " + items.length + " item" + (items.length !== 1 ? "s" : "") + "\n" +
+					   "Rankings found: " + found + " item" + (found !== 1 ? "s" : "") + "\n" +
+					   "Not found: " + notFound + " item" + (notFound !== 1 ? "s" : "") + "\n" +
+					   "Skipped: " + skipped + " item" + (skipped !== 1 ? "s" : "") + " (no publication title or not regular items)\n\n" +
+					   "Rankings are displayed in the 'Ranking' column.\n" +
+					   "Right-click the column headers to show/hide it.";
+				
+				// Show first 10 not found titles for debugging
+				if (notFoundList.length > 0) {
+					var displayCount = Math.min(10, notFoundList.length);
+					message += "\n\nFirst " + displayCount + " not found title" + (displayCount !== 1 ? "s" : "") + ":";
+					for (var j = 0; j < displayCount; j++) {
+						message += "\n" + (j + 1) + ". " + notFoundList[j];
+					}
 				}
 				
-				// Check if ranking can be found
-				var ranking = this.getRankingSync(item);
-				if (ranking) {
-					found++;
-				} else {
-					notFound++;
-					notFoundList.push(publicationTitle.trim());
-				}
+				await Zotero.alert(window, "Rankings Check Complete", message);
+			} catch (e) {
+				Zotero.debug("SJR & CORE Rankings: Error in updateSelectedItems: " + e);
+				progressWin.close();
+				throw e;
 			}
-			
-			var message = "Total selected: " + items.length + " item" + (items.length !== 1 ? "s" : "") + "\n" +
-				   "Rankings found: " + found + " item" + (found !== 1 ? "s" : "") + "\n" +
-				   "Not found: " + notFound + " item" + (notFound !== 1 ? "s" : "") + "\n" +
-				   "Skipped: " + skipped + " item" + (skipped !== 1 ? "s" : "") + " (no publication title or not regular items)\n\n" +
-				   "Rankings are displayed in the 'Ranking' column.\n" +
-				   "Right-click the column headers to show/hide it.";
-			
-			// Show first 10 not found titles for debugging
-			if (notFoundList.length > 0) {
-				var displayCount = Math.min(10, notFoundList.length);
-				message += "\n\nFirst " + displayCount + " not found title" + (displayCount !== 1 ? "s" : "") + ":";
-				for (var j = 0; j < displayCount; j++) {
-					message += "\n" + (j + 1) + ". " + notFoundList[j];
-				}
-			}
-			
-		await Zotero.alert(window, "Rankings Check Complete", message);
-	},
+		},
 	
 	// Debug matching for selected items - shows detailed matching algorithm output
 	debugSelectedItems: async function(window) {
@@ -721,12 +762,11 @@ ZoteroRankings = {
 		var existingOverride = ManualOverrides.get(publicationTitle);
 		var defaultValue = existingOverride || '';
 		
-		// Prompt for ranking
-		var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-									.getService(Components.interfaces.nsIPromptService);
+		// Prompt for ranking using modern Services API
+		var Services = globalThis.Services || ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 		
 		var input = { value: defaultValue };
-		var result = promptService.prompt(
+		var result = Services.prompt.prompt(
 			window,
 			"Set Manual Ranking",
 			`Set ranking for:\n"${publicationTitle}"\n\nExamples: A*, A, B, C, Q1, Q2, Q3, Q4, Au A, Nat A\n\nRanking:`,

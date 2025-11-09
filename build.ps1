@@ -7,7 +7,7 @@
 # XPI files are just ZIP files with a different extension
 
 $pluginName = "sjr-core-rankings"
-$version = "1.1.2"
+$version = "1.1.3"
 $outputFile = "$pluginName-$version.xpi"
 
 # Remove old XPI if it exists

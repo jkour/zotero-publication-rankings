@@ -17,13 +17,26 @@ var ManualOverrides = {
 	 */
 	load: async function() {
 		try {
-			const data = Zotero.Prefs.get('extensions.sjr-core-rankings.manualOverrides', '{}');
-			const parsed = JSON.parse(data);
+			// Third parameter 'true' indicates global preference for persistence
+			const data = Zotero.Prefs.get('extensions.sjr-core-rankings.manualOverrides', true) || '{}';
+			
+			// Handle empty or whitespace-only strings
+			const trimmedData = data.trim();
+			if (!trimmedData || trimmedData === '{}') {
+				Zotero.debug("SJR & CORE Rankings: No manual overrides data, initializing empty");
+				this.overrides = new Map();
+				return;
+			}
+			
+			const parsed = JSON.parse(trimmedData);
 			this.overrides = new Map(Object.entries(parsed));
 			Zotero.debug(`SJR & CORE Rankings: Loaded ${this.overrides.size} manual overrides`);
+			Zotero.debug(`SJR & CORE Rankings: Raw data: ${data}`);
 		} catch (e) {
 			Zotero.logError("SJR & CORE Rankings: Error loading manual overrides: " + e);
+			// Reset to empty state and clear corrupted preference
 			this.overrides = new Map();
+			Zotero.Prefs.set('extensions.sjr-core-rankings.manualOverrides', '{}', true);
 		}
 	},
 	
@@ -33,8 +46,11 @@ var ManualOverrides = {
 	save: async function() {
 		try {
 			const obj = Object.fromEntries(this.overrides);
-			Zotero.Prefs.set('extensions.sjr-core-rankings.manualOverrides', JSON.stringify(obj));
+			const jsonString = JSON.stringify(obj);
+			// Third parameter 'true' is CRITICAL for persistence across restarts
+			Zotero.Prefs.set('extensions.sjr-core-rankings.manualOverrides', jsonString, true);
 			Zotero.debug(`SJR & CORE Rankings: Saved ${this.overrides.size} manual overrides`);
+			Zotero.debug(`SJR & CORE Rankings: Saved data: ${jsonString}`);
 		} catch (e) {
 			Zotero.logError("SJR & CORE Rankings: Error saving manual overrides: " + e);
 		}
