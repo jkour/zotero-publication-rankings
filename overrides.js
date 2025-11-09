@@ -3,24 +3,28 @@
  * Manages user-defined manual ranking overrides with persistent storage
  * 
  * Copyright (C) 2025 Ben Stephens
- * Licensed under GNU GPL v3
+ * Licensed under GNU General Public License v3.0 (GPLv3)
  */
 
-/* global Zotero */
+/* global Zotero, getPref, setPref */
 
 var ManualOverrides = {
-	// In-memory storage
+	/**
+	 * In-memory cache of manual overrides
+	 * @type {Map<string, string>}
+	 */
 	overrides: new Map(),
 	
 	/**
 	 * Load manual overrides from Zotero preferences
+	 * Called during plugin initialization
+	 * 
+	 * @returns {Promise<void>}
 	 */
 	load: async function() {
 		try {
-			// Third parameter 'true' indicates global preference for persistence
-			const data = Zotero.Prefs.get('extensions.sjr-core-rankings.manualOverrides', true) || '{}';
+			const data = getPref('manualOverrides') || '{}';
 			
-			// Handle empty or whitespace-only strings
 			const trimmedData = data.trim();
 			if (!trimmedData || trimmedData === '{}') {
 				Zotero.debug("SJR & CORE Rankings: No manual overrides data, initializing empty");
@@ -34,21 +38,22 @@ var ManualOverrides = {
 			Zotero.debug(`SJR & CORE Rankings: Raw data: ${data}`);
 		} catch (e) {
 			Zotero.logError("SJR & CORE Rankings: Error loading manual overrides: " + e);
-			// Reset to empty state and clear corrupted preference
 			this.overrides = new Map();
-			Zotero.Prefs.set('extensions.sjr-core-rankings.manualOverrides', '{}', true);
+			setPref('manualOverrides', '{}');
 		}
 	},
 	
 	/**
 	 * Save manual overrides to Zotero preferences
+	 * Persists the in-memory cache to preferences storage
+	 * 
+	 * @returns {Promise<void>}
 	 */
 	save: async function() {
 		try {
 			const obj = Object.fromEntries(this.overrides);
 			const jsonString = JSON.stringify(obj);
-			// Third parameter 'true' is CRITICAL for persistence across restarts
-			Zotero.Prefs.set('extensions.sjr-core-rankings.manualOverrides', jsonString, true);
+			setPref('manualOverrides', jsonString);
 			Zotero.debug(`SJR & CORE Rankings: Saved ${this.overrides.size} manual overrides`);
 			Zotero.debug(`SJR & CORE Rankings: Saved data: ${jsonString}`);
 		} catch (e) {
@@ -58,8 +63,10 @@ var ManualOverrides = {
 	
 	/**
 	 * Set a manual override for a publication
+	 * 
 	 * @param {string} publicationTitle - The publication title
-	 * @param {string} ranking - The ranking to set (e.g., "A*", "Q1")
+	 * @param {string} ranking - The ranking to set (e.g., "A*", "Q1", "B")
+	 * @returns {Promise<void>}
 	 */
 	set: async function(publicationTitle, ranking) {
 		const normalizedTitle = publicationTitle.toLowerCase().trim();
@@ -69,8 +76,10 @@ var ManualOverrides = {
 	},
 	
 	/**
-	 * Remove a manual override
+	 * Remove a manual override for a publication
+	 * 
 	 * @param {string} publicationTitle - The publication title
+	 * @returns {Promise<void>}
 	 */
 	remove: async function(publicationTitle) {
 		const normalizedTitle = publicationTitle.toLowerCase().trim();
@@ -81,6 +90,7 @@ var ManualOverrides = {
 	
 	/**
 	 * Get a manual override if it exists
+	 * 
 	 * @param {string} publicationTitle - The publication title
 	 * @returns {string|undefined} The ranking if override exists, undefined otherwise
 	 */
@@ -91,8 +101,9 @@ var ManualOverrides = {
 	
 	/**
 	 * Check if a manual override exists for a publication
+	 * 
 	 * @param {string} publicationTitle - The publication title
-	 * @returns {boolean} True if override exists
+	 * @returns {boolean} True if override exists, false otherwise
 	 */
 	has: function(publicationTitle) {
 		const normalizedTitle = publicationTitle.toLowerCase().trim();
@@ -101,6 +112,7 @@ var ManualOverrides = {
 	
 	/**
 	 * Get the total number of manual overrides
+	 * 
 	 * @returns {number} Count of overrides
 	 */
 	count: function() {
@@ -109,6 +121,8 @@ var ManualOverrides = {
 	
 	/**
 	 * Clear all manual overrides
+	 * 
+	 * @returns {Promise<void>}
 	 */
 	clearAll: async function() {
 		this.overrides.clear();

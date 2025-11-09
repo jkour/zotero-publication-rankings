@@ -3,7 +3,7 @@
  * String normalization and ranking matching algorithms
  * 
  * Copyright (C) 2025 Ben Stephens
- * Licensed under GNU GPL v3
+ * Licensed under GNU General Public License v3.0 (GPLv3)
  */
 
 /* global coreRankings, sjrRankings */
@@ -11,11 +11,15 @@
 var MatchingUtils = {
 	/**
 	 * Normalize a string for comparison
+	 * Applies multiple transformations to create a canonical form for matching:
 	 * - Convert to lowercase
 	 * - Replace & with 'and'
-	 * - Normalize telecommunications/communications
+	 * - Normalize telecommunications/communications variants
 	 * - Remove special characters
 	 * - Collapse whitespace
+	 * 
+	 * @param {string} str - The string to normalize
+	 * @returns {string} Normalized string
 	 */
 	normalizeString: function(str) {
 		return str.toLowerCase()
@@ -28,31 +32,34 @@ var MatchingUtils = {
 
 	/**
 	 * Extract acronym from title (text in parentheses)
-	 * Example: "Conference on Security (CCS)" -> "CCS"
+	 * 
+	 * @param {string} title - The title to extract acronym from
+	 * @returns {string|null} Extracted acronym or null if none found
+	 * 
+	 * @example
+	 * extractAcronym("Conference on Security (CCS)") // Returns: "CCS"
+	 * extractAcronym("International Conference") // Returns: null
 	 */
 	extractAcronym: function(title) {
-		// Look for uppercase acronyms in parentheses
-		// Match pattern like (CCS), (SIGCOMM), (S&P), etc.
 		var match = title.match(/\(([A-Z][A-Z0-9&]+)\)/);
 		return match ? match[1] : null;
 	},
 
 	/**
-	 * Clean conference title by removing common prefixes, years, ordinals
+	 * Clean conference title by removing noise
+	 * Removes common prefixes, years, ordinals, and other patterns that
+	 * interfere with matching
+	 * 
+	 * @param {string} title - The conference title to clean
+	 * @returns {string} Cleaned title
 	 */
 	cleanConferenceTitle: function(title) {
 		var cleaned = title
-			// Remove "Proceedings of the " prefix
 			.replace(/^Proceedings of the\s+/gi, '')
-			// Remove patterns like "CCS 2023 - " or "SIGCOMM '23 - "
 			.replace(/^[A-Z]+\s+\d{4}\s+-\s+/gi, '')
-			// Remove 4-digit years
 			.replace(/\b\d{4}\b/g, '')
-			// Remove ordinals like "25th Annual", "3rd"
 			.replace(/\b\d{1,2}(st|nd|rd|th)\s+(Annual\s+)?/gi, '')
-			// Remove "Annual"
 			.replace(/\bAnnual\s+/gi, '')
-			// Remove trailing year/acronym patterns like " - CCS '23"
 			.replace(/\s+-\s+[A-Z]+\s+'?\d{2,4}\s*$/gi, '')
 			.replace(/\s+/g, ' ')
 			.trim();
@@ -61,12 +68,16 @@ var MatchingUtils = {
 
 	/**
 	 * Match a conference title against CORE rankings database
-	 * Uses 5 strategies in priority order:
+	 * Uses 5 matching strategies in priority order:
 	 * 1. Exact normalized match
-	 * 2. Substring match (CORE in Zotero)
-	 * 3. Reverse substring (Zotero in CORE)
-	 * 4. Word overlap (80%+)
-	 * 5. Acronym match (4+ chars, unique only)
+	 * 2. Substring match (CORE title appears in Zotero title)
+	 * 3. Reverse substring (Zotero title appears in CORE title)
+	 * 4. Word overlap (80%+ overlap required)
+	 * 5. Acronym match (4+ chars, unique matches only)
+	 * 
+	 * @param {string} zoteroTitle - The conference title from Zotero item
+	 * @param {boolean} [enableDebug=false] - Enable detailed debug logging
+	 * @returns {string|null} CORE ranking or null if no match found
 	 */
 	matchCoreConference: function(zoteroTitle, enableDebug = false) {
 		var debugLog = enableDebug ? function(msg) { Zotero.debug("[MATCH DEBUG] " + msg); } : function() {};

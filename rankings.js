@@ -133,8 +133,9 @@ ZoteroRankings = {
 			Zotero.logError("SJR & CORE Rankings: Failed to register notifier: " + e);
 		}
 		
-		// Register preference observer for debugMode changes
-		this.prefsObserverID = Zotero.Prefs.registerObserver('extensions.sjr-core-rankings.debugMode', this.handleDebugModeChange.bind(this), true);
+		// Register preference observers
+		this.debugModeObserverID = registerPrefObserver('debugMode', this.handleDebugModeChange.bind(this));
+		this.enableCOREObserverID = registerPrefObserver('enableCORE', this.handleEnableCOREChange.bind(this));
 		
 		Zotero.debug("SJR & CORE Rankings initialized");
 	},
@@ -182,10 +183,28 @@ ZoteroRankings = {
 		}
 	},
 	
+	// Handle enableCORE preference changes
+	handleEnableCOREChange: function(value) {
+		Zotero.debug(`SJR & CORE Rankings: CORE rankings ${value ? 'enabled' : 'disabled'}`);
+		
+		// Clear the ranking cache so items are re-evaluated
+		this.rankingCache.clear();
+		Zotero.debug(`SJR & CORE Rankings: Cache cleared (${this.rankingCache.size} items)`);
+		
+		// Refresh all visible item trees to update rankings immediately
+		var windows = Zotero.getMainWindows();
+		for (let win of windows) {
+			if (win.ZoteroPane && win.ZoteroPane.itemsView) {
+				win.ZoteroPane.itemsView.refreshAndMaintainSelection();
+				Zotero.debug("SJR & CORE Rankings: Item tree refreshed");
+			}
+		}
+	},
+	
 	// Notifier callback - refresh item tree when items are added/modified
 	notify: async function(event, type, ids, extraData) {
 		// Check if auto-update is enabled
-		if (!Zotero.Prefs.get('extensions.sjr-core-rankings.autoUpdate', true)) {
+		if (!getPref('autoUpdate')) {
 			return;
 		}
 		
@@ -299,7 +318,7 @@ ZoteroRankings = {
 			contextMenu.appendChild(contextMenuItem);
 			
 			// Only add debug menu item if debug mode is enabled
-			if (Zotero.Prefs.get('extensions.sjr-core-rankings.debugMode', true)) {
+			if (getPref('debugMode')) {
 				contextMenu.appendChild(debugMenuItem);
 			}
 			
@@ -320,9 +339,12 @@ ZoteroRankings = {
 			Zotero.Notifier.unregisterObserver(this.notifierID);
 		}
 		
-		// Unregister the preference observer
-		if (this.prefsObserverID) {
-			Zotero.Prefs.unregisterObserver(this.prefsObserverID);
+		// Unregister preference observers
+		if (this.debugModeObserverID) {
+			unregisterPrefObserver(this.debugModeObserverID);
+		}
+		if (this.enableCOREObserverID) {
+			unregisterPrefObserver(this.enableCOREObserverID);
 		}
 		
 		// Unregister the custom column
@@ -485,7 +507,7 @@ ZoteroRankings = {
 			}
 			debugLog(`No SJR word overlap match found (checked ${Object.keys(sjrRankings).length} entries)`);
 							// If not found in journals, try CORE conference rankings (if enabled)
-				if (Zotero.Prefs.get('extensions.sjr-core-rankings.enableCORE', true)) {
+				if (getPref('enableCORE')) {
 					debugLog(`Trying CORE rankings (enabled in preferences)`);
 					var coreRank = MatchingUtils.matchCoreConference(normalizedTitle, enableDebug);
 					if (coreRank) {
@@ -578,7 +600,7 @@ ZoteroRankings = {
 			}
 		}
 					// If not found in journals, try CORE conference rankings (if enabled)
-			if (Zotero.Prefs.get('extensions.sjr-core-rankings.enableCORE', true)) {
+			if (getPref('enableCORE')) {
 				var coreRank = MatchingUtils.matchCoreConference(normalizedTitle);
 				if (coreRank) {
 					return coreRank;

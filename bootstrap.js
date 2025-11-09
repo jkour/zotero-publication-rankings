@@ -1,5 +1,6 @@
 /*
  * SJR & CORE Rankings Plugin for Zotero 7
+ * Bootstrap - Plugin lifecycle dispatcher
  * 
  * Copyright (C) 2025 Ben Stephens
  * 
@@ -15,109 +16,99 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * 
+ * This file is a simple dispatcher that delegates all lifecycle events
+ * to the Hooks module for cleaner architecture and better separation
+ * of concerns.
  */
 
-/* global Services, Components */
+/* global Services, Components, Hooks, Zotero */
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-function log(msg) {
-	Zotero.debug("SJR & CORE Rankings: " + msg);
+/**
+ * Load all plugin modules in dependency order
+ * 
+ * @param {string} rootURI - Root URI of the extension
+ */
+function loadModules(rootURI) {
+	const modules = [
+		'data.js',           // Rankings data (no dependencies)
+		'prefs-utils.js',    // Preference utilities (used by other modules)
+		'matching.js',       // Matching algorithms
+		'overrides.js',      // Manual overrides
+		'ui-utils.js',       // UI utilities
+		'rankings.js',       // Main plugin logic
+		'hooks.js'           // Lifecycle hooks (loads last)
+	];
+	
+	for (const module of modules) {
+		Services.scriptloader.loadSubScript(rootURI + module);
+		Zotero.debug(`SJR & CORE Rankings: Loaded ${module}`);
+	}
 }
 
 /**
- * Called when the extension is installed or updated
+ * Bootstrap install hook - called when extension is installed or updated
+ * 
+ * @param {Object} data - Installation data
+ * @param {number} reason - Installation reason constant
  */
 function install(data, reason) {
-	log("Installing plugin");
+	Hooks.onInstall(data, reason);
 }
 
 /**
- * Called when the extension is started
+ * Bootstrap startup hook - called when extension is loaded
+ * 
+ * @param {Object} params - Startup parameters
+ * @param {string} params.id - Extension ID
+ * @param {string} params.version - Extension version
+ * @param {string} params.rootURI - Root URI of the extension
  */
 async function startup({ id, version, rootURI }) {
-	log("========================================");
-	log("STARTUP CALLED - Version: " + version);
-	log("========================================");
-	
-	// Register preference pane using official Zotero 7 API
-	log("Registering preference pane");
-	Zotero.PreferencePanes.register({
-		pluginID: 'sjr-core-rankings@zotero.org',
-		src: rootURI + 'preferences.xhtml',
-		label: 'Rankings'
-	});
-	log("Preference pane registered");
-	
-	// Load the ranking data and code (files are in root of XPI)
-	// Load directly without sandbox for simpler global variable access
-	log("rootURI: " + rootURI);
-	log("Loading data.js from: " + rootURI + 'data.js');
-	
-	Services.scriptloader.loadSubScript(rootURI + 'data.js');
-	log("data.js loaded successfully");
-	
-	// Load modular components
-	Services.scriptloader.loadSubScript(rootURI + 'matching.js');
-	log("matching.js loaded successfully");
-	
-	Services.scriptloader.loadSubScript(rootURI + 'overrides.js');
-	log("overrides.js loaded successfully");
-	
-	Services.scriptloader.loadSubScript(rootURI + 'ui-utils.js');
-	log("ui-utils.js loaded successfully");
-	
-	Services.scriptloader.loadSubScript(rootURI + 'rankings.js');
-	log("rankings.js loaded successfully");
-	
-	// Attach to Zotero object for global access
-	if (!Zotero.SJRCoreRankings) {
-		Zotero.SJRCoreRankings = ZoteroRankings;
-	}
-	
-	log("Plugin attached to Zotero.SJRCoreRankings");
-	
-	// Initialize the plugin
-	log("Calling init()");
-	await Zotero.SJRCoreRankings.init({ id, version, rootURI });
-	log("Init complete, calling addToAllWindows()");
-	Zotero.SJRCoreRankings.addToAllWindows();
-	log("Startup complete");
+	loadModules(rootURI);
+	await Hooks.onStartup({ id, version, rootURI });
 }
 
 /**
- * Called when a main Zotero window is opened (Zotero 7)
+ * Bootstrap window load hook - called when a Zotero window opens
+ * 
+ * @param {Object} params - Window parameters
+ * @param {Window} params.window - The window being loaded
  */
 function onMainWindowLoad({ window }) {
-	Zotero.SJRCoreRankings?.addToWindow(window);
+	Hooks.onMainWindowLoad({ window });
 }
 
 /**
- * Called when a main Zotero window is closed (Zotero 7)
+ * Bootstrap window unload hook - called when a Zotero window closes
+ * 
+ * @param {Object} params - Window parameters
+ * @param {Window} params.window - The window being unloaded
  */
 function onMainWindowUnload({ window }) {
-	Zotero.SJRCoreRankings?.removeFromWindow(window);
+	Hooks.onMainWindowUnload({ window });
 }
 
 /**
- * Called when the extension is shutting down
+ * Bootstrap shutdown hook - called when extension is being disabled
+ * 
+ * @param {Object} params - Shutdown parameters
+ * @param {string} params.id - Extension ID
+ * @param {string} params.version - Extension version
+ * @param {string} params.rootURI - Root URI of the extension
+ * @param {number} reason - Shutdown reason constant
  */
 function shutdown({ id, version, rootURI }, reason) {
-	// Skip cleanup on app shutdown for better performance
-	if (reason === APP_SHUTDOWN) {
-		return;
-	}
-	
-	log("Shutting down plugin");
-	
-	if (Zotero.SJRCoreRankings) {
-		Zotero.SJRCoreRankings.removeFromAllWindows();
-		delete Zotero.SJRCoreRankings;
-	}
+	Hooks.onShutdown({ id, version, rootURI }, reason);
 }
 
 /**
- * Called when the extension is uninstalled
+ * Bootstrap uninstall hook - called when extension is uninstalled
+ * 
+ * @param {Object} data - Uninstallation data
+ * @param {number} reason - Uninstallation reason constant
  */
 function uninstall(data, reason) {
-	log("Uninstalling plugin");
+	Hooks.onUninstall(data, reason);
 }

@@ -13,9 +13,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Controls visibility of "Debug Ranking Match" context menu item
   - Dynamic updates without restart - menu item appears/disappears immediately when toggled
   - Uses preference observer for real-time menu updates across all windows
+- **Preference wrapper utility** - New `prefs-utils.js` module for cleaner preference access
+  - Eliminates repetitive prefix concatenation (`extensions.sjr-core-rankings`)
+  - Ensures consistent use of the `true` parameter for global preference storage
+  - Provides helper functions: `getPref()`, `setPref()`, `registerPrefObserver()`, `unregisterPrefObserver()`, `clearPref()`
+  - Improves code maintainability and readability (DRY principle)
+- **Lifecycle hooks module** - New `hooks.js` module for cleaner architecture
+  - Implements standard lifecycle event pattern from modern Zotero 7 plugins
+  - Provides clean handlers: `onStartup()`, `onShutdown()`, `onMainWindowLoad()`, `onMainWindowUnload()`, `onInstall()`, `onUninstall()`
+  - Bootstrap.js simplified to a minimal dispatcher (delegates all logic to hooks)
+  - Better separation of concerns and easier to maintain
+  - Comprehensive JSDoc documentation for all hook functions
 
 ### Changed
--
+- **Code quality improvements** - Refactored preference access across all modules
+  - Updated `rankings.js` to use new preference wrapper utilities (6 call sites)
+  - Updated `overrides.js` to use new preference wrapper utilities (3 call sites)
+  - Cleaner, more maintainable code with single source of truth for preference prefix
+- **Architecture improvements** - Modernized plugin structure following Zotero 7 best practices
+  - Bootstrap.js simplified from 130+ lines to ~70 lines (cleaner dispatcher pattern)
+  - Lifecycle logic moved from bootstrap.js into dedicated `hooks.js` module
+  - Module loading centralized in `loadModules()` function with clear dependency order
+  - Better code organization and easier future maintenance
+- **Services API migration audit completed** - Verified full Zotero 7 API compliance
+- **JSDoc compliant docs** - Added JSDoc strings with params to all functions
 
 ### Fixed
 - **Column resizing** - Fixed issue where Ranking column had excessive minimum width
@@ -23,6 +44,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed explicit width constraints that interfered with natural resizing behavior
   - Added 'ordinal' to zoteroPersist array for proper column position persistence
   - Column now resizes smoothly and naturally like built-in Zotero columns
+- **CORE preference changes** - Fixed issue where disabling CORE rankings didn't clear existing CORE rankings
+  - Added preference observer for `enableCORE` setting
+  - Cache is now automatically cleared when CORE is enabled/disabled
+  - Item tree refreshes immediately to show updated rankings
+  - Ensures rankings reflect current preference state
 
 
 ## [1.1.3] - 2025-11-09

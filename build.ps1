@@ -33,11 +33,13 @@ $filesToInclude = @(
     "prefs.js",
     "logo.svg",
     "preferences.xhtml",
+    "prefs-utils.js",
     "data.js",
     "matching.js",
     "overrides.js",
     "ui-utils.js",
-    "rankings.js"
+    "rankings.js",
+    "hooks.js"
 )
 
 foreach ($file in $filesToInclude) {
