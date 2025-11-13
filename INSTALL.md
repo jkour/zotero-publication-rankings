@@ -1,22 +1,22 @@
 # Installation Guide
 
-## SJR & CORE Rankings Plugin for Zotero 7
+## Publication Rankings for Zotero 7
 
 **Author:** Ben Stephens  
 **License:** GNU General Public License v3.0 (GPLv3)  
-**Repository:** https://github.com/ben-AI-cybersec/sjr-core-rankings-zotero-plugin
+**Repository:** https://github.com/ben-AI-cybersec/zotero-publication-rankings
 
 ## Quick Start
 
 1. **Download the Plugin**
-   - The plugin file is: `sjr-core-rankings-x.x.x.xpi`
+   - The plugin file is: `publication-rankings-x.x.x.xpi`
 
 2. **Install in Zotero 7**
    - Open Zotero 7
    - Go to **Tools → Add-ons** (or press Ctrl+Shift+A)
    - Click the **gear icon** (⚙️) in the top-right corner
    - Select **"Install Add-on From File..."**
-   - Navigate to and select `sjr-core-rankings-x.x.x.xpi`
+   - Navigate to and select `publication-rankings-x.x.x.xpi`
    - Click **"Install Now"** when prompted
    - Restart Zotero if required
 
@@ -24,18 +24,19 @@
    
    **Automatic Mode (Default):**
    - Simply add new items to your library (via browser, DOI, PDF, etc.)
-   - Rankings are automatically added to the Series field
+   - Rankings automatically appear in the custom "Ranking" column
+   - Right-click column headers to show/hide the Ranking column
    - Works silently in the background
    
    **Manual Mode:**
    - Select one or more items in your Zotero library
-   - Go to **Tools → Update Rankings for Selected Items**
+   - Go to **Tools → Check Publication Rankings**
    - Wait for the update to complete
-   - Check the "Series" field of your items to see the rankings
+   - Check the "Ranking" column to see the results
 
-## What Gets Updated
+## What Gets Displayed
 
-The plugin updates the **Series** field with:
+The plugin displays rankings in a custom "Ranking" column with:
 
 ### Journal Rankings (from SJR 2024)
 - Format: `Q1 18.288`, `Q2 1.423`, `Q3 0.628`, `Q4 0.145`
@@ -67,9 +68,14 @@ The plugin uses 8 different fuzzy matching strategies:
 If you prefer to only update rankings manually:
 
 1. Go to **Edit → Settings** (or **Zotero → Settings** on Mac)
+2. Click **Rankings** tab in the preferences
+3. Uncheck "Automatically update rankings when items are added or modified"
+
+Alternatively, using Config Editor:
+1. Go to **Edit → Settings** (or **Zotero → Settings** on Mac)
 2. Click **Advanced** tab
 3. Click **Config Editor** button
-4. Search for: `extensions.sjr-core-rankings.autoUpdate`
+4. Search for: `extensions.publication-rankings.autoUpdate`
 5. Double-click the entry to change it to `false`
 
 To re-enable, change it back to `true`.
@@ -125,7 +131,7 @@ To update the ranking data:
 
 For issues or questions:
 - Check the [README.md](README.md) file
-- Open an issue on [GitHub](https://github.com/ben-AI-cybersec/sjr-core-rankings-zotero-plugin/issues)
+- Open an issue on [GitHub](https://github.com/ben-AI-cybersec/zotero-publication-rankings/issues)
 
 ---
 

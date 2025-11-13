@@ -1,6 +1,6 @@
-# SJR & CORE Rankings Plugin for Zotero 7
+# Publication Rankings for Zotero 7
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/ben-AI-cybersec/sjr-core-rankings-zotero-plugin?style=for-the-badge)](https://github.com/ben-AI-cybersec/sjr-core-rankings-zotero-plugin/releases/latest) [![GitHub Downloads all releases](https://img.shields.io/github/downloads/ben-AI-cybersec/sjr-core-rankings-zotero-plugin/total?style=for-the-badge&color=forestgreen)](https://github.com/ben-AI-cybersec/sjr-core-rankings-zotero-plugin/releases/latest) [![GitHub Downloads (latest release)](https://img.shields.io/github/downloads/ben-AI-cybersec/sjr-core-rankings-zotero-plugin/latest/total?style=for-the-badge)](https://github.com/ben-AI-cybersec/sjr-core-rankings-zotero-plugin/releases/latest)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/ben-AI-cybersec/zotero-publication-rankings?style=for-the-badge)](https://github.com/ben-AI-cybersec/zotero-publication-rankings/releases/latest) [![GitHub Downloads all releases](https://img.shields.io/github/downloads/ben-AI-cybersec/zotero-publication-rankings/total?style=for-the-badge&color=forestgreen)](https://github.com/ben-AI-cybersec/zotero-publication-rankings/releases/latest) [![GitHub Downloads (latest release)](https://img.shields.io/github/downloads/ben-AI-cybersec/zotero-publication-rankings/latest/total?style=for-the-badge)](https://github.com/ben-AI-cybersec/zotero-publication-rankings/releases/latest)
 
 A Zotero plugin that automatically displays journal and conference rankings in a custom column in your Zotero library.
 
@@ -20,7 +20,7 @@ A Zotero plugin that automatically displays journal and conference rankings in a
 
 ## Installation
 
-1. Download the latest `sjr-core-rankings-*.xpi` from the [releases page](https://github.com/ben-AI-cybersec/sjr-core-rankings-zotero-plugin/releases/latest)
+1. Download the latest `publication-rankings-*.xpi` from the [releases page](https://github.com/ben-AI-cybersec/zotero-publication-rankings/releases/latest)
 2. In Zotero 7: Tools → Add-ons → ⚙️ → "Install Add-on From File..."
 3. Select the `.xpi` file and restart Zotero
 4. Right-click column headers and enable the "Ranking" column
@@ -33,7 +33,7 @@ Rankings automatically appear in the Ranking column when you view items.
 
 To see statistics about ranking matches for selected items:
 1. Select one or more items in your library
-2. Right-click → "Check SJR & CORE Rankings" (or Tools → "Check SJR & CORE Rankings")
+2. Right-click → "Check Publication Rankings" (or Tools → "Check Publication Rankings")
 3. A dialog shows how many rankings were found/not found
 
 ### Debug Matching
@@ -112,16 +112,16 @@ This generates the `data.js` file in the plugin directory.
 ### Building the Plugin
 
 ```powershell
-cd sjr-core-rankings-zotero-plugin
+cd zotero-publication-rankings
 .\build.ps1
 ```
 
-This creates the `.xpi` file ready for installation (e.g., `sjr-core-rankings-1.1.4.xpi`).
+This creates the `.xpi` file ready for installation (e.g., `publication-rankings-0.1.0.xpi`).
 
 ## Project Structure
 
 ```
-sjr-core-rankings-zotero-plugin/
+zotero-publication-rankings/
 ├── src/                              # Source modules (organized by function)
 │   ├── core/                         # Core plugin functionality
 │   │   ├── rankings.js              # Main coordinator (226 lines)
@@ -165,7 +165,7 @@ sjr-core-rankings-zotero-plugin/
 
 **Note**: The build process copies files from `src/` directories and flattens them to the XPI root.
 
-### Modular Architecture (v1.1.4+)
+### Modular Architecture
 
 The plugin uses an extensible modular architecture designed for maintainability and future growth:
 
@@ -253,4 +253,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Support
 
-If you encounter any issues or have suggestions, please open an issue on the [GitHub repository](https://github.com/ben-AI-cybersec/sjr-core-rankings-zotero-plugin).
+If you encounter any issues or have suggestions, please open an issue on the [GitHub repository](https://github.com/ben-AI-cybersec/zotero-publication-rankings).
