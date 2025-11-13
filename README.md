@@ -1,6 +1,6 @@
 # Publication Rankings for Zotero 7
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/ben-AI-cybersec/zotero-publication-rankings?style=for-the-badge)](https://github.com/ben-AI-cybersec/zotero-publication-rankings/releases/latest) [![GitHub Downloads all releases](https://img.shields.io/github/downloads/ben-AI-cybersec/zotero-publication-rankings/total?style=for-the-badge&color=forestgreen)](https://github.com/ben-AI-cybersec/zotero-publication-rankings/releases/latest) [![GitHub Downloads (latest release)](https://img.shields.io/github/downloads/ben-AI-cybersec/zotero-publication-rankings/latest/total?style=for-the-badge)](https://github.com/ben-AI-cybersec/zotero-publication-rankings/releases/latest)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/ben-AI-cybersec/zotero-publication-rankings?style=for-the-badge)](https://github.com/ben-AI-cybersec/zotero-publication-rankings/releases/latest) [![GitHub Downloads (all releases)](https://img.shields.io/github/downloads/ben-AI-cybersec/zotero-publication-rankings/total?style=for-the-badge&color=forestgreen)](https://github.com/ben-AI-cybersec/zotero-publication-rankings/releases) [![License](https://img.shields.io/github/license/ben-AI-cybersec/zotero-publication-rankings?style=for-the-badge)](LICENSE)
 
 A Zotero plugin that automatically displays journal and conference rankings in a custom column in your Zotero library.
 
