@@ -28,10 +28,16 @@ def generate_data_js():
         return
     
     # Generate data.js file
-    output_path = 'zotero-rankings-plugin/data.js'
+    output_path = '../src/data/data.js'
     print(f"\nGenerating {output_path}...")
     
     with open(output_path, 'w', encoding='utf-8') as f:
+        # Write header
+        f.write('// Combined SJR Journal Rankings and CORE Conference Rankings\n')
+        f.write('// Auto-generated data file from extract_core.py and extract_sjr.py\n')
+        f.write('// Use this with rankings.js\n')
+        f.write('\n')
+
         # Write SJR rankings
         f.write('// SJR Journal Rankings (Scimago Journal Rank 2024)\n')
         f.write('// Total journals: ' + str(len(sjr_rankings)) + '\n')

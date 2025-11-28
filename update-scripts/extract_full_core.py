@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 
 def extract_full_core_rankings(csv_file='full_CORE.csv'):
     """
@@ -12,13 +13,14 @@ def extract_full_core_rankings(csv_file='full_CORE.csv'):
     
     with open(csv_file, 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
-        header = next(reader)  # Skip header row
+        # header = next(reader)  # full_CORE does not hava a header
         
-        print("CSV Header:", header)
+        print("CSV Header: The file does not have a header")
         print("\nProcessing conferences...\n")
         
         for row in reader:
-            if len(row) < 10:
+            if len(row) < 9:
+                print(f"Ignored row: [{row}]")
                 continue
             
             # Extract fields
@@ -74,6 +76,13 @@ def extract_full_core_rankings(csv_file='full_CORE.csv'):
 
 if __name__ == '__main__':
     rankings = extract_full_core_rankings()
+
+    if os.path.exists('full_CORE.csv'):
+        print('Import file exists')
+    else:
+        print('!!! Import file does not exist')
+        exit()
+    
     
     # Show examples from each category
     print("\n=== Example Rankings ===")
