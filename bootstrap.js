@@ -52,6 +52,7 @@ function loadModules(rootURI) {
 		'database-registry.js',   // Database plugin system (from src/databases/)
 		'database-sjr.js',        // SJR database plugin (from src/databases/)
 		'database-core.js',       // CORE database plugin (from src/databases/)
+		'database-abs.js',		  // ABS database plugin (from src/databases/)	
 		
 		// Engine
 		'ranking-engine.js',      // Core ranking logic (from src/engine/)

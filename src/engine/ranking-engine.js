@@ -74,19 +74,34 @@ var RankingEngine = {
 			debugLog(`Checking ${databases.length} enabled database(s): ${databases.map(db => db.name).join(', ')}`);
 			
 			// Try each database in priority order
+			var ranking = '';
 			for (var i = 0; i < databases.length; i++) {
 				var db = databases[i];
 				debugLog(`Trying database: ${db.name} (priority ${db.priority})`);
 				
-				var ranking = db.matcher(normalizedTitle, debugLog);
-				if (ranking) {
-					debugLog(`✓ FOUND in ${db.name}: ${ranking}`);
-					return ranking;
+				var rank = db.matcher(normalizedTitle, debugLog);
+				if (rank) {
+					debugLog(`✓ FOUND in ${db.name}: ${rank}`);
+					switch (db.id) {
+						case 'sjr':
+							rank = 'SJR: ' + rank;
+							break;
+						case 'core':
+							rank = 'CORE: ' + rank;
+							break;
+						case 'abs':
+							rank = 'ABS: ' + rank;
+							break;
+                    }
+
+					ranking = rank + ' ' + ranking;
 				}
 			}
-			
-			debugLog(`✗ NO MATCH FOUND in any database for "${publicationTitle}"`);
-			return '';
+
+			if (ranking) {
+				debugLog(`✗ NO MATCH FOUND in any database for "${publicationTitle}"`);
+			}
+			return ranking;
 		}
 		catch (e) {
 			Zotero.logError("RankingEngine: Error getting ranking: " + e);

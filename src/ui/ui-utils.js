@@ -58,7 +58,24 @@ var UIUtils = {
 		if (ranking.startsWith('Nat ')) {
 			return '#7B1FA2'; // Purple
 		}
-		
+
+		// ABS Ranking (Green to Red gradient)
+		if (ranking.startsWith('4*')) {
+			return '#2E7D32'; // Dark green (best)
+		}
+		if (ranking.startsWith('4')) {
+			return '#92D050'
+        }
+		if (ranking.startsWith('3')) {
+			return '#0288D1'; // Blue
+		}
+		if (ranking.startsWith('2')) {
+			return '#F57C00'; // Orange
+		}
+		if (ranking.startsWith('1')) {
+			return '#D32F2F'; // Red (lowest)
+		}
+
 		// Default for other rankings (TBR, Unranked, etc.)
 		return '#757575'; // Gray
 	},
@@ -69,8 +86,8 @@ var UIUtils = {
 	 * @param {string} ranking - The ranking string
 	 * @returns {number} Sort value
 	 */
-	getRankingSortValue: function(ranking) {
-		if (!ranking) return 0;
+	getRankingSortValue: function (ranking) {
+		if ((!ranking) || (ranking == 'N/A')) return 0;
 		
 		// CORE A* = highest
 		if (ranking === 'A*' || ranking.startsWith('A* ')) return 1000;
@@ -104,6 +121,13 @@ var UIUtils = {
 		if (ranking.startsWith('Nat B')) return 200;
 		if (ranking.startsWith('Nat C')) return 150;
 		if (ranking.startsWith('Nat ')) return 100;
+
+		// ABS Ranking
+		if (ranking.startsWith('4*')) return 249;
+		if (ranking.startsWith('4')) return 248;
+		if (ranking.startsWith('3')) return 247;
+		if (ranking.startsWith('2')) return 246;
+		if (ranking.startsWith('1')) return 245;
 		
 		// Other/Unknown rankings
 		return 50;
@@ -158,7 +182,14 @@ var UIUtils = {
 		if (ranking === 'Q2') return 'SJR Q2 - Top 50% of journals';
 		if (ranking === 'Q3') return 'SJR Q3 - Top 75% of journals';
 		if (ranking === 'Q4') return 'SJR Q4 - Bottom 25% of journals';
-		
+
+		// ABS Quantriles
+		if (ranking === '4*') return 'ABS 4*';
+		if (ranking === '4') return 'ABS 4';
+		if (ranking === '3') return 'ABS 3';
+		if (ranking === '2') return 'ABS 2';
+		if (ranking === '1') return 'ABS 1';
+
 		return ranking;
 	},
 
