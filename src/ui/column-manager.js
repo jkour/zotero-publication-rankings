@@ -131,24 +131,93 @@ var ColumnManager = {
 		let itemID = displayText.split('&&')[1];
 				
 		// Strip the sort prefix (format is "sortValue|ranking")
+		// This is also the default text if the graphica rendering fails
 		displayText = displayText.split('&&')[0].split('|')[1];
 
 		var content = displayText;
+		// Failsafe in case the code below does not work
+		cell.innerHTML = content;
+
 		var item = Zotero.Items.get(itemID);
 		if (item) {
+			// Determine the right font colour
+			var bItems = [];
 			content = '';
 			var r = RankingEngine.getRankingArray(item);
 			r.reverse().forEach(function (line) {
 				var e = line.split(',');
-				content = content + `<span style="color: ${e[2]}; font-weight: bold;">${e[0].toUpperCase().trim()}: ${e[1]}</span> `;
+				let b = {
+					color: e[2],
+					text: e[0].toUpperCase().trim() + ': ' + e[1]
+				};
+				bItems.push(b);
 			});
-			content = content.trim();
-		}
-		
-		// Insert HTML content into the cell
-		cell.innerHTML = content;
 
-		return cell;
+			// Just show text
+			if (!getPref('enableBadges')) {
+				bItems.forEach(function (it) {
+					var { color, text } = it;
+					content = content + `<span style="color: ${color}; font-weight: bold;">${text}</span> `;
+				});
+
+				content = content.trim();
+				cell.innerHTML = content;
+			} else {
+			// create badges with text in them
+				cell.innerHTML = '';
+			
+				let container = doc.createElement('span');
+				container.style.display = 'inline-flex'; // arrange badges side by side
+				container.style.alignItems = 'center'; // vertically
+				container.style.justifyContent = 'left'; // badges at the left side of the cell
+				container.style.gap = '10px'; // space between badges
+
+				bItems.forEach(function (it) {
+					var { color, text } = it;
+
+					// Create the badge
+					let badge = doc.createElement('span');
+					badge.style.position = 'relative';
+
+					// Calculate width based on the length of the text
+					// Here we initialise it. We adjust it based on badgeText
+					badge.style.width = '60px';  // Width of the circle
+
+					badge.style.height = '25px';  // Height of the circle
+					badge.style.borderRadius = '20%';  // Make it round
+					badge.style.backgroundColor = color;  // Use the color variable for the background
+					badge.style.display = 'flex';
+					badge.style.alignItems = 'left';
+					badge.style.justifyContent = 'center';
+
+					// Create the text
+					let badgeText = doc.createElement('div');
+					badgeText.textContent = text;
+					badgeText.style.position = 'absolute';
+					badgeText.style.top = '50%'; // centre vertically
+					badgeText.style.left = '50%'; // centre horizontally
+					badgeText.style.transform = 'translate(-50%, -50%)'; // adjust centering
+					badgeText.style.color = 'white';
+					badgeText.style.fontWeight = 'bold';
+					badgeText.style.fontSize = (badgeText.style.fontSize - 2) + 'px';
+
+					// Fix badge width
+					let canvas = doc.getElementById('canvas');
+					let cc = canvas.getContext('2d');
+					cc.font = badgeText.font;
+					Zotero.debug('*** cc font size: ' + cc.font.fontsize);
+					Zotero.debug('*** text width: ' + cc.measureText(text));
+					badge.style.width = Math.max(cc.measureText(text).width + 20, 60); // Add some space, min 60px;
+
+					// Attach the text to the badge
+					badge.appendChild(badgeText);
+
+					container.appendChild(badge);
+				});
+				cell.appendChild(container);
+			}
+			return cell;
+		}
 	},
 	
 	/**
