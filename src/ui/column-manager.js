@@ -170,7 +170,7 @@ var ColumnManager = {
 				container.style.display = 'inline-flex'; // arrange badges side by side
 				container.style.alignItems = 'center'; // vertically
 				container.style.justifyContent = 'left'; // badges at the left side of the cell
-				container.style.gap = '10px'; // space between badges
+				container.style.gap = '5px'; // space between badges
 
 				bItems.forEach(function (it) {
 					var { color, text } = it;
@@ -180,12 +180,32 @@ var ColumnManager = {
 					badge.style.position = 'relative';
 
 					// Calculate width based on the length of the text
-					// Here we initialise it. We adjust it based on badgeText
-					badge.style.width = '60px';  // Width of the circle
+					badge.style.width = (text.length * 8) + 'px';  // Width of the circle
 
-					badge.style.height = '25px';  // Height of the circle
-					badge.style.borderRadius = '20%';  // Make it round
-					badge.style.backgroundColor = color;  // Use the color variable for the background
+					badge.style.height = '20px';  // Height of the circle
+					badge.style.borderRadius = '10%';  // Make it round
+
+					// Use the color variable for the background 
+					// Soften the colour a bit, because it is very bright for background color
+					var hex = color.replace(/^#/, '');
+					let r = parseInt(hex.substring(0, 2), 16);
+					let g = parseInt(hex.substring(2, 4), 16);
+					let b = parseInt(hex.substring(4, 6), 16);
+
+					// Lighten the colour
+					var factor = 0.2;
+					r = Math.round(r + (255 - r) * factor);
+					g = Math.round(g + (255 - g) * factor);
+					b = Math.round(b + (255 - b) * factor);
+
+					// Back to Hex
+					let red = r.toString(16).padStart(2, '0');
+					let green = g.toString(16).padStart(2, '0')
+					let blue = b.toString(16).padStart(2, '0');
+
+					
+					badge.style.backgroundColor = `#${red}${green}${blue}` ;
+
 					badge.style.display = 'flex';
 					badge.style.alignItems = 'left';
 					badge.style.justifyContent = 'center';
@@ -200,14 +220,6 @@ var ColumnManager = {
 					badgeText.style.color = 'white';
 					badgeText.style.fontWeight = 'bold';
 					badgeText.style.fontSize = (badgeText.style.fontSize - 2) + 'px';
-
-					// Fix badge width
-					let canvas = doc.getElementById('canvas');
-					let cc = canvas.getContext('2d');
-					cc.font = badgeText.font;
-					Zotero.debug('*** cc font size: ' + cc.font.fontsize);
-					Zotero.debug('*** text width: ' + cc.measureText(text));
-					badge.style.width = Math.max(cc.measureText(text).width + 20, 60); // Add some space, min 60px;
 
 					// Attach the text to the badge
 					badge.appendChild(badgeText);
