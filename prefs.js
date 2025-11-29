@@ -17,5 +17,8 @@ pref("extensions.publication-rankings.enableCORE", true);
 // Enable ABS journal rankings
 pref("extensions.publication-rankings.enableABS", true);
 
+// Disable Badges
+pref("extensions.publication-rankings.enableBadges", false);
+
 // Enable debug mode (shows "Debug Ranking Match" in context menu)
 pref("extensions.publication-rankings.debugMode", false);

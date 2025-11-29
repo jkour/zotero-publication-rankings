@@ -43,6 +43,21 @@
 
 <groupbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:html="http://www.w3.org/1999/xhtml">
+    <label><html:h2>User Interface</html:h2></label>
+    <description style="margin-bottom: 10px;">Customize the user interface.</description>
+
+    <vbox style="margin-left: 20px;">
+        <checkbox id="publication-rankings-enableBadges"
+                  label="Use Badges"
+                  preference="extensions.publication-rankings.enableBadges" />
+        <description style="margin-left: 20px; margin-bottom: 10px;">
+            Show ranking badges instead of coloured text.
+        </description>
+    </vbox>
+</groupbox>
+
+<groupbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:html="http://www.w3.org/1999/xhtml">
     <label><html:h2>Automatic Updates</html:h2></label>
     <checkbox id="publication-rankings-autoUpdate" 
               label="Automatically update rankings when items are added or modified"

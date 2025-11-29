@@ -39,7 +39,8 @@ ZoteroRankings = {
 	notifierID: null,
 	debugModeObserverID: null,
 	databaseObserverIDs: {},  // Store observer IDs for all database preferences
-	
+	enableBadgesObserverID: null, // Stores observer ID for enableBadges preference item
+
 	// Initialize plugin - coordinate module initialization and register observers
 	init: async function({ id, version, rootURI }) {
 		this.id = id;
@@ -64,7 +65,8 @@ ZoteroRankings = {
 		
 		// Register preference observers
 		this.debugModeObserverID = registerPrefObserver('debugMode', this.handleDebugModeChange.bind(this));
-		
+		this.enableBadgesObserverID = registerPrefObserver('enableBadges', this.handleBadgesChange.bind(this));
+
 		// Register observers for all database preferences
 		this.registerDatabaseObservers();
 		
@@ -115,7 +117,7 @@ ZoteroRankings = {
 		}
 	},
 	
-	// Handle enableCORE preference changes - clear cache and refresh item trees
+	// Handle enableXXX database preference changes - clear cache and refresh item trees
 	handleDatabaseChange: function(dbId, value) {
 		var db = DatabaseRegistry.getDatabase(dbId);
 		if (!db) {
@@ -137,7 +139,25 @@ ZoteroRankings = {
 			}
 		}
 	},
-	
+
+	// Handle enableBadges changes - clear cache and refresh item trees
+	handleBadgesChange: function (value) {
+		Zotero.debug(`Badges ${value ? 'enabled' : 'disabled'}`);
+
+		// Clear the ranking cache so items are re-evaluated
+		ColumnManager.clearAllCache();
+
+		// Refresh all visible item trees to update rankings immediately
+		var windows = Zotero.getMainWindows();
+		for (let win of windows) {
+			if (win.ZoteroPane && win.ZoteroPane.itemsView) {
+				win.ZoteroPane.itemsView.refreshAndMaintainSelection();
+				Zotero.debug("Enable Badges: Item tree refreshed");
+			}
+		}
+    },
+
+
 	// Notifier callback - refresh item tree when items are added/modified (if autoUpdate enabled)
 	notify: async function(event, type, ids, extraData) {
 		// Check if auto-update is enabled
