@@ -101,8 +101,9 @@ var ColumnManager = {
 		const sortValue = UIUtils.getRankingSortValue(ranking);
 		const invertedValue = 9999 - sortValue; // Invert: 1000 becomes 8999, 50 becomes 9949
 		const paddedValue = String(invertedValue).padStart(4, '0');
-		
-		return `${paddedValue}|${ranking}`;
+
+		// The itemID is passed here to renderClass in order to perform custom painting
+		return `${paddedValue}|${ranking}&&${itemID}`;
 	},
 	
 	/**
@@ -123,24 +124,30 @@ var ColumnManager = {
 		// Create cell element
 		const cell = doc.createElement('span');
 		cell.className = `cell ${column.className}`;
-		
-		// Strip the sort prefix (format is "sortValue|ranking")
+
 		let displayText = data;
-		if (data && data.includes('|')) {
-			displayText = data.split('|')[1];
+		// data always has a value (itemID)
+		// Extract itemID
+		let itemID = displayText.split('&&')[1];
+				
+		// Strip the sort prefix (format is "sortValue|ranking")
+		displayText = displayText.split('&&')[0].split('|')[1];
+
+		var content = displayText;
+		var item = Zotero.Items.get(itemID);
+		if (item) {
+			content = '';
+			var r = RankingEngine.getRankingArray(item);
+			r.reverse().forEach(function (line) {
+				var e = line.split(',');
+				content = content + `<span style="color: ${e[2]}; font-weight: bold;">${e[0].toUpperCase().trim()}: ${e[1]}</span> `;
+			});
+			content = content.trim();
 		}
 		
-		cell.textContent = displayText;
-		
-		// Apply color coding based on ranking
-		if (displayText) {
-			const color = UIUtils.getRankingColor(displayText);
-			if (color) {
-				cell.style.color = color;
-				cell.style.fontWeight = 'bold';
-			}
-		}
-		
+		// Insert HTML content into the cell
+		cell.innerHTML = content;
+
 		return cell;
 	},
 	
