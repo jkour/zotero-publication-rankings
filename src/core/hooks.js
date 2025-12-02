@@ -30,12 +30,14 @@ var Hooks = {
 		Zotero.debug("========================================");
 		Zotero.debug(`Publication Rankings: Startup - Version ${version}`);
 		Zotero.debug("========================================");
-		
+		Zotero.debug('Plugin Root URI: ' + rootURI);
+
 		// Register preference pane using official Zotero 7 API
 		Zotero.debug("Publication Rankings: Registering preference pane");
 		Zotero.PreferencePanes.register({
 			pluginID: 'publication-rankings@zotero.org',
 			src: rootURI + 'preferences.xhtml',
+		//	scripts: [rootURI + 'src/core/prefs-abs.js'],
 			label: 'Rankings'
 		});
 		
@@ -104,5 +106,5 @@ var Hooks = {
 	onMainWindowUnload({ window }) {
 		Zotero.debug("Publication Rankings: Main window unloading");
 		Zotero.SJRCoreRankings?.removeFromWindow(window);
-	}
+	},
 };
