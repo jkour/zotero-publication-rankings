@@ -45,8 +45,6 @@ function loadModules(rootURI) {
 		// Actions
 		'overrides.js',           // Manual overrides (from src/actions/)
 
-		'prefs-abs.js',
-
 		// UI utilities
 		'ui-utils.js',            // UI utilities (from src/ui/)
 
