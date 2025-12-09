@@ -35,27 +35,28 @@ function loadModules(rootURI) {
 	const modules = [
 		// Data files
 		'data.js',                // Rankings data (from src/data/)
-		
+
 		// Core utilities
 		'prefs-utils.js',         // Preference utilities (from src/core/)
-		
+
 		// Engine components
 		'matching.js',            // Matching algorithms (from src/engine/)
-		
+
 		// Actions
 		'overrides.js',           // Manual overrides (from src/actions/)
-		
+
 		// UI utilities
 		'ui-utils.js',            // UI utilities (from src/ui/)
-		
+
 		// Database system
 		'database-registry.js',   // Database plugin system (from src/databases/)
 		'database-sjr.js',        // SJR database plugin (from src/databases/)
 		'database-core.js',       // CORE database plugin (from src/databases/)
-		
+		'database-abs.js',		  // ABS database plugin (from src/databases/)	
+
 		// Engine
 		'ranking-engine.js',      // Core ranking logic (from src/engine/)
-		
+
 		// UI components
 		'column-manager.js',      // Column registration (from src/ui/)
 		'menu-manager.js',        // Menu management (from src/ui/)
@@ -73,7 +74,7 @@ function loadModules(rootURI) {
 	
 	for (const module of modules) {
 		Services.scriptloader.loadSubScript(rootURI + module);
-		Zotero.debug(`Publication Rankings: Loaded ${module}`);
+		Zotero.debug(`Publication Rankings: Loaded ${module} from ${rootURI}`);
 	}
 }
 

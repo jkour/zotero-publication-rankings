@@ -96,8 +96,8 @@ var MatchingUtils = {
 		for (var title in coreRankings) {
 			var normalizedCore = this.normalizeString(title);
 			if (normalizedCore === normalizedZotero) {
-				debugLog(`  ✓ CORE exact match: "${title}" (${coreRankings[title].rank})`);
-				return coreRankings[title].rank;
+				debugLog(`  ✓ CORE exact match: "${title}" (${coreRankings[title]})`);
+				return coreRankings[title];
 			}
 		}
 		debugLog(`  No CORE exact match`);
@@ -108,8 +108,8 @@ var MatchingUtils = {
 			var normalizedCore = this.normalizeString(title);
 			// Only match if CORE title is substantial (>20 chars) to avoid false positives
 			if (normalizedZotero.indexOf(normalizedCore) !== -1 && normalizedCore.length > 20) {
-				debugLog(`  ✓ CORE substring match: "${title}" (${coreRankings[title].rank})`);
-				return coreRankings[title].rank;
+				debugLog(`  ✓ CORE substring match: "${title}" (${coreRankings[title]})`);
+				return coreRankings[title];
 			}
 		}
 		debugLog(`  No CORE substring match`);
@@ -119,8 +119,8 @@ var MatchingUtils = {
 		for (var title in coreRankings) {
 			var normalizedCore = this.normalizeString(title);
 			if (normalizedCore.indexOf(normalizedZotero) !== -1 && normalizedZotero.length > 20) {
-				debugLog(`  ✓ CORE reverse substring match: "${title}" (${coreRankings[title].rank})`);
-				return coreRankings[title].rank;
+				debugLog(`  ✓ CORE reverse substring match: "${title}" (${coreRankings[title]})`);
+				return coreRankings[title];
 			}
 		}
 		debugLog(`  No CORE reverse substring match`);
@@ -142,9 +142,9 @@ var MatchingUtils = {
 			
 			// If most core words are present (80%+), it's likely a match
 			if (coreWords.length >= 4 && matchCount / coreWords.length >= 0.8) {
-				debugLog(`  ✓ CORE word overlap match: "${title}" (${coreRankings[title].rank})`);
+				debugLog(`  ✓ CORE word overlap match: "${title}" (${coreRankings[title]})`);
 				debugLog(`    Matched ${matchCount}/${coreWords.length} words (${(matchCount/coreWords.length*100).toFixed(0)}%)`);
-				return coreRankings[title].rank;
+				return coreRankings[title];
 			}
 		}
 		debugLog(`  No CORE word overlap match`);
@@ -156,10 +156,11 @@ var MatchingUtils = {
 			
 			var acronymMatches = [];
 			for (var title in coreRankings) {
-				if (coreRankings[title].acronym === zoteroAcronym) {
+				var coreAcronym = this.extractAcronym(title);
+				if (coreAcronym === zoteroAcronym) {
 					acronymMatches.push({
 						title: title,
-						rank: coreRankings[title].rank,
+						rank: coreRankings[title],
 						normalized: this.normalizeString(title)
 					});
 				}

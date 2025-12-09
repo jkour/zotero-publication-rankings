@@ -101,8 +101,9 @@ var ColumnManager = {
 		const sortValue = UIUtils.getRankingSortValue(ranking);
 		const invertedValue = 9999 - sortValue; // Invert: 1000 becomes 8999, 50 becomes 9949
 		const paddedValue = String(invertedValue).padStart(4, '0');
-		
-		return `${paddedValue}|${ranking}`;
+
+		// The itemID is passed here to renderClass in order to perform custom painting
+		return `${paddedValue}|${ranking}&&${itemID}`;
 	},
 	
 	/**
@@ -123,25 +124,112 @@ var ColumnManager = {
 		// Create cell element
 		const cell = doc.createElement('span');
 		cell.className = `cell ${column.className}`;
-		
-		// Strip the sort prefix (format is "sortValue|ranking")
+
 		let displayText = data;
-		if (data && data.includes('|')) {
-			displayText = data.split('|')[1];
-		}
-		
-		cell.textContent = displayText;
-		
-		// Apply color coding based on ranking
-		if (displayText) {
-			const color = UIUtils.getRankingColor(displayText);
-			if (color) {
-				cell.style.color = color;
-				cell.style.fontWeight = 'bold';
+		// data always has a value (itemID)
+		// Extract itemID
+		let itemID = displayText.split('&&')[1];
+				
+		// Strip the sort prefix (format is "sortValue|ranking")
+		// This is also the default text if the graphica rendering fails
+		displayText = displayText.split('&&')[0].split('|')[1];
+
+		var content = displayText;
+		// Failsafe in case the code below does not work
+		cell.innerHTML = content;
+
+		var item = Zotero.Items.get(itemID);
+		if (item) {
+			// Determine the right font colour
+			var bItems = [];
+			content = '';
+			var r = RankingEngine.getRankingArray(item);
+			r.reverse().forEach(function (line) {
+				var e = line.split(',');
+				let b = {
+					color: e[2],
+					text: e[0].toUpperCase().trim() + ': ' + e[1]
+				};
+				bItems.push(b);
+			});
+
+			// Just show text
+			if (!getPref('enableBadges')) {
+				bItems.forEach(function (it) {
+					var { color, text } = it;
+					content = content + `<span style="color: ${color}; font-weight: bold;">${text}</span> `;
+				});
+
+				content = content.trim();
+				cell.innerHTML = content;
+			} else {
+			// create badges with text in them
+				cell.innerHTML = '';
+			
+				let container = doc.createElement('span');
+				container.style.display = 'inline-flex'; // arrange badges side by side
+				container.style.alignItems = 'center'; // vertically
+				container.style.justifyContent = 'left'; // badges at the left side of the cell
+				container.style.gap = '5px'; // space between badges
+
+				bItems.forEach(function (it) {
+					var { color, text } = it;
+
+					// Create the badge
+					let badge = doc.createElement('span');
+					badge.style.position = 'relative';
+
+					// Calculate width based on the length of the text
+					badge.style.width = (text.length * 8) + 'px';  // Width of the circle
+
+					badge.style.height = '20px';  // Height of the circle
+					badge.style.borderRadius = '10%';  // Make it round
+
+					// Use the color variable for the background 
+					// Soften the colour a bit, because it is very bright for background color
+					var hex = color.replace(/^#/, '');
+					let r = parseInt(hex.substring(0, 2), 16);
+					let g = parseInt(hex.substring(2, 4), 16);
+					let b = parseInt(hex.substring(4, 6), 16);
+
+					// Lighten the colour
+					var factor = 0.2;
+					r = Math.round(r + (255 - r) * factor);
+					g = Math.round(g + (255 - g) * factor);
+					b = Math.round(b + (255 - b) * factor);
+
+					// Back to Hex
+					let red = r.toString(16).padStart(2, '0');
+					let green = g.toString(16).padStart(2, '0')
+					let blue = b.toString(16).padStart(2, '0');
+
+					
+					badge.style.backgroundColor = `#${red}${green}${blue}` ;
+
+					badge.style.display = 'flex';
+					badge.style.alignItems = 'left';
+					badge.style.justifyContent = 'center';
+
+					// Create the text
+					let badgeText = doc.createElement('div');
+					badgeText.textContent = text;
+					badgeText.style.position = 'absolute';
+					badgeText.style.top = '50%'; // centre vertically
+					badgeText.style.left = '50%'; // centre horizontally
+					badgeText.style.transform = 'translate(-50%, -50%)'; // adjust centering
+					badgeText.style.color = 'white';
+					badgeText.style.fontWeight = 'bold';
+					badgeText.style.fontSize = (badgeText.style.fontSize - 2) + 'px';
+
+					// Attach the text to the badge
+					badge.appendChild(badgeText);
+
+					container.appendChild(badge);
+				});
+				cell.appendChild(container);
 			}
+			return cell;
 		}
-		
-		return cell;
 	},
 	
 	/**

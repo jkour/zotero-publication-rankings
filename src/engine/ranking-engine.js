@@ -74,26 +74,121 @@ var RankingEngine = {
 			debugLog(`Checking ${databases.length} enabled database(s): ${databases.map(db => db.name).join(', ')}`);
 			
 			// Try each database in priority order
+			var ranking = '';
 			for (var i = 0; i < databases.length; i++) {
 				var db = databases[i];
 				debugLog(`Trying database: ${db.name} (priority ${db.priority})`);
 				
-				var ranking = db.matcher(normalizedTitle, debugLog);
-				if (ranking) {
-					debugLog(`✓ FOUND in ${db.name}: ${ranking}`);
-					return ranking;
+				var rank = db.matcher(normalizedTitle, debugLog);
+				if (rank) {
+					debugLog(`✓ FOUND in ${db.name}: ${rank}`);
+					switch (db.id) {
+						case 'sjr':
+							rank = 'SJR: ' + rank;
+							break;
+						case 'core':
+							rank = 'CORE: ' + rank;
+							break;
+						case 'abs':
+							rank = 'ABS: ' + rank;
+							break;
+                    }
+
+					ranking = rank + ' ' + ranking;
 				}
 			}
-			
-			debugLog(`✗ NO MATCH FOUND in any database for "${publicationTitle}"`);
-			return '';
+
+			if (ranking) {
+				debugLog(`✗ NO MATCH FOUND in any database for "${publicationTitle}"`);
+			}
+			return ranking;
 		}
 		catch (e) {
 			Zotero.logError("RankingEngine: Error getting ranking: " + e);
 			return '';
 		}
 	},
-	
+
+	/**
+	 * Get the ranking of a Zotero Item as an array of comma-separated strings
+	 * The strings are formed by the following parts:
+	 *		0: database id
+	 *		1: ranking
+	 *		2: ranking colour
+	 *		
+	 * @param {Object} item - Zotero item object
+	 * @param {boolean} enableDebug - Whether to log detailed matching information
+	 * @returns {Array} strings - Array of string or empty array
+	 * 
+	 * @example
+	 * var ranking = RankingEngine.getRankingArray(item, false);
+	 * // Returns: ["sjr,Q1 0.85,black", "core,A*,red"] or []
+	 */
+	getRankingArray: function (item, enableDebug = false) {
+		try {
+			var m = [];
+
+			if (!item || !item.isRegularItem()) {
+				return m;
+			}
+
+			// Extract publication title from various possible fields
+			var publicationTitle = this.extractPublicationTitle(item);
+
+			if (!publicationTitle) {
+				return m;
+			}
+
+			var normalizedTitle = publicationTitle.trim();
+
+			// Debug logging helper
+			const debugLog = (message) => {
+				if (enableDebug) {
+					Zotero.debug(`[MATCH DEBUG getRankingArray] ${message}`);
+				}
+			};
+
+			debugLog(`=== Matching: "${publicationTitle}" ===`);
+
+			// Check manual overrides first (highest priority)
+			const manualOverride = ManualOverrides.get(publicationTitle);
+			if (manualOverride) {
+				debugLog(`✓ MANUAL OVERRIDE: "${manualOverride}"`);
+				m.push(`Manual,"${manualOverride}",#757575`);
+				return m;
+			}
+			debugLog(`No manual override found`);
+
+			// Get all enabled databases from registry (sorted by priority)
+			const databases = DatabaseRegistry.getEnabledDatabases();
+			debugLog(`Checking ${databases.length} enabled database(s): ${databases.map(db => db.name).join(', ')}`);
+
+			// Try each database in priority order
+			for (var i = 0; i < databases.length; i++) {
+				var db = databases[i];
+				debugLog(`Trying database: ${db.name} (priority ${db.priority})`);
+
+				var rank = db.matcher(normalizedTitle, debugLog);
+				if (rank) {
+					debugLog(`✓ FOUND in ${db.name}: ${rank}`);
+					var a = [db.id, rank, UIUtils.getRankingColor(rank)];
+					m.push(a.join(','));
+				}
+			}
+
+			if (m.length === 0) {
+				debugLog(`✗ NO MATCH FOUND in any database for "${publicationTitle}"`);
+			}
+
+			return m;
+		}
+		catch (e) {
+			Zotero.logError("RankingEngine: Error getting ranking: " + e);
+			return [];
+		}
+	},
+
+
 	/**
 	 * Extract publication title from item, checking multiple possible fields
 	 * 

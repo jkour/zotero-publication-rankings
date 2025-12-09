@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 
 def extract_sjr_rankings(csv_file_path, output_file='sjr_rankings.json'):
     """
@@ -19,10 +20,10 @@ def extract_sjr_rankings(csv_file_path, output_file='sjr_rankings.json'):
         reader = csv.DictReader(file, delimiter=';')
         
         for row in reader:
-            title = row['Title'].strip().lower()
+            title = row['Title'].strip('"').strip().lower()
             sjr_value = row['SJR'].strip()
             quartile = row['SJR Best Quartile'].strip()
-            
+
             # Convert SJR value from string to float, handling comma as decimal separator
             try:
                 sjr_float = float(sjr_value.replace(',', '.'))
@@ -66,6 +67,12 @@ def generate_javascript_dict(sjr_dict, output_file='sjr_rankings.js'):
 if __name__ == "__main__":
     csv_file = "scimagojr 2024.csv"
     
+    if os.path.exists(csv_file):
+        print('Import file exists')
+    else:
+        print('!!! Import file does not exist')
+        exit()
+
     print("Extracting SJR rankings from CSV...")
     sjr_dict = extract_sjr_rankings(csv_file)
     
