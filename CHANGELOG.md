@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-12-10
+
+### Added
+- **Extra Field Integration** - Write rankings to Zotero's Extra field
+  - New menu option: "Write Rankings to Extra Field" (Tools menu and context menu)
+  - Format: `Ranking: Q1 0.85 (SJR)` or `Ranking: A* (CORE)`
+  - Preserves existing Extra field data (citations, BBT keys, custom metadata)
+  - Compatible with citation-tally plugin format
+- **Batch Processing Optimisation**
+  - Single database transaction for all items
+  - Progress window shows real-time updates during batch operations
+  - Efficient cache utilisation reduces redundant matching
+- **Automatic Cleanup on Uninstall**
+  - Rankings automatically removed from Extra fields when plugin is disabled
+  - Clean uninstall with no leftover metadata
+  - Fast cleanup process using optimised regex filtering
+- **Badges and some cool colour code**
+  - @jkour added badges and a really helpful colour modification function
+  - Preference item for badges or text
+- **ABS Rankings from CABS**
+  - @jkour added database for business, management and other fields
+
+### Changed
+- **Performance Improvements**
+  - Optimised cache structure to store structured arrays instead of concatenated strings
+- **Cache System Enhancement**
+  - Cache now stores arrays: `["sjr,Q1 0.85,#color", "core,A*,#color"]`
+  - Added `formatRankingForDisplay()` helper for display string conversion
+  - Added `getCachedRankingForItem()` for formatted cache access
+  - Simplified cache lookup with better support for multi-database rankings
+
+### Fixes
+ - UI fixes, widths and colours
+ - Header rows correctly handled
+ - Checks if database files actually exist
+ - Corrected paths and title stripping
+
 ## [0.1.0] - 2025-11-14
 
 ### Initial Release

@@ -17,6 +17,9 @@ A Zotero plugin that automatically displays journal and conference rankings in a
 - **Debug Matching**: Detailed logging to troubleshoot matching issues
 - **Manual Override**: Set custom rankings for incorrectly matched journals
 - **Persistent Storage**: Manual overrides and preferences survive Zotero restarts
+- **Extra Field Integration**: Write rankings to Zotero's Extra field for export
+- **Batch Operations**: Efficient batch processing with progress tracking
+- **Smart Cleanup**: Automatically removes ranking entries when plugin is disabled
 
 ## Installation
 
@@ -61,6 +64,19 @@ To remove a manual override:
 3. Rankings revert to automatic matching
 
 **Note**: Manual overrides are stored persistently and survive Zotero restarts.
+
+### Extra Field Integration
+
+Write rankings to Zotero's Extra field for export or sharing with others:
+
+1. Select items in your library
+2. Right-click → "Write Rankings to Extra Field" (or Tools menu)
+3. Rankings are added in the format: `Ranking: Q1 0.85 (SJR)` or `Ranking: A* (CORE)`
+4. Progress window shows how many items were updated
+
+**Features:**
+- Preserves existing Extra field data (citations, BBT keys, etc.)
+- Batch processing with single database transaction
 
 ### Sorting by Ranking
 
@@ -125,7 +141,7 @@ zotero-publication-rankings/
 ├── src/                              # Source modules (organized by function)
 │   ├── core/                         # Core plugin functionality
 │   │   ├── rankings.js              # Main coordinator (226 lines)
-│   │   ├── hooks.js                 # Lifecycle event handlers
+│   │   ├── hooks.js                 # Lifecycle event handlers (111 lines)
 │   │   └── prefs-utils.js           # Preference wrapper utilities
 │   ├── data/
 │   │   └── data.js                  # Rankings databases (32,934 lines)
@@ -137,12 +153,12 @@ zotero-publication-rankings/
 │   │   ├── ranking-engine.js        # Core ranking coordinator (132 lines)
 │   │   └── matching.js              # String normalization & algorithms
 │   ├── ui/                           # User interface components
-│   │   ├── column-manager.js        # Column registration & caching (222 lines)
+│   │   ├── column-manager.js        # Column registration & caching (373 lines)
 │   │   ├── menu-manager.js          # Menu creation & handling (260 lines)
 │   │   ├── window-manager.js        # Window lifecycle tracking (108 lines)
 │   │   └── ui-utils.js              # UI formatting, colors, sorting
 │   └── actions/                      # User-triggered operations
-│       ├── ranking-actions.js       # Update, debug, manual ranking (334 lines)
+│       ├── ranking-actions.js       # Extra field, debug, manual ranking (613 lines)
 │       └── overrides.js             # Manual override persistence
 ├── update-scripts/                   # Data extraction scripts
 │   ├── scimagojr 2024.csv           # SJR source data
@@ -151,7 +167,7 @@ zotero-publication-rankings/
 │   ├── extract_full_core.py         # Extract CORE rankings
 │   └── generate_data_js.py          # Combine into data.js
 ├── manifest.json                     # Plugin metadata
-├── bootstrap.js                      # Plugin lifecycle hooks & module loader
+├── bootstrap.js                      # Plugin lifecycle hooks & module loader (150 lines)
 ├── prefs.js                          # Default preferences
 ├── preferences.xhtml                 # Settings UI
 ├── logo.svg                          # Plugin icon
@@ -216,8 +232,10 @@ The plugin uses an extensible modular architecture designed for maintainability 
   - Sort value calculation for proper tier ordering
 
 #### User Actions
-- **`ranking-actions.js`** (334 lines) - User-triggered operations
-  - Batch ranking updates for selected items
+- **`ranking-actions.js`** (613 lines) - User-triggered operations
+  - Batch ranking updates for selected items with progress tracking
+  - Extra field integration: `writeRankingsToExtra()` and `updateRankingsInExtra()`
+  - Automatic cleanup: `cleanupAllRankingsFromExtra()` on plugin disable
   - Debug matching with detailed logging
   - Manual ranking override dialog
 - **`overrides.js`** (100 lines) - Manual override persistence
