@@ -208,7 +208,8 @@ ZoteroRankings = {
 			onCheckRankings: () => this.updateSelectedItems(window),
 			onDebugMatch: () => this.debugSelectedItems(window),
 			onSetManual: () => this.setManualRankingDialog(window),
-			onClearManual: () => this.clearManualRankingForSelected(window)
+			onClearManual: () => this.clearManualRankingForSelected(window),
+			onWriteToExtra: () => this.writeRankingsToExtra(window)
 		});
 	},
 	
@@ -279,5 +280,10 @@ ZoteroRankings = {
 	
 	clearManualRankingForSelected: async function(window) {
 		return RankingActions.clearManualRankingForSelected(window);
+	},
+	
+	// Write rankings to Extra field for selected items (batch operation)
+	writeRankingsToExtra: async function(window) {
+		return RankingActions.writeRankingsToExtra(window);
 	}
 };

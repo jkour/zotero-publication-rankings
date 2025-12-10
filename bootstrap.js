@@ -98,9 +98,9 @@ function install(data, reason) {
  * @param {string} params.version - Extension version
  * @param {string} params.rootURI - Root URI of the extension
  */
-async function startup({ id, version, rootURI }) {
+function startup({ id, version, rootURI }) {
 	loadModules(rootURI);
-	await Hooks.onStartup({ id, version, rootURI });
+	Hooks.onStartup({ id, version, rootURI });
 }
 
 /**

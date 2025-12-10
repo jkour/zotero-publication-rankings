@@ -34,6 +34,7 @@ var MenuManager = {
 	 * @param {Function} handlers.onDebugMatch - Handler for "Debug Match"
 	 * @param {Function} handlers.onSetManual - Handler for "Set Manual Ranking"
 	 * @param {Function} handlers.onClearManual - Handler for "Clear Manual Ranking"
+	 * @param {Function} handlers.onWriteToExtra - Handler for "Write Rankings to Extra"
 	 * 
 	 * @example
 	 * MenuManager.addToWindow(window, {
@@ -113,7 +114,14 @@ var MenuManager = {
 		menuItem.addEventListener('command', handlers.onCheckRankings);
 		toolsMenu.appendChild(menuItem);
 		
-		Zotero.debug("Publication Rankings: Menu item added to Tools menu");
+		// Create "Write Rankings to Extra Field" menu item
+		var writeExtraItem = doc.createXULElement('menuitem');
+		writeExtraItem.id = 'zotero-rankings-write-extra';
+		writeExtraItem.setAttribute('label', 'Write Rankings to Extra Field');
+		writeExtraItem.addEventListener('command', handlers.onWriteToExtra);
+		toolsMenu.appendChild(writeExtraItem);
+		
+		Zotero.debug("Publication Rankings: Menu items added to Tools menu");
 	},
 	
 	/**
@@ -159,6 +167,12 @@ var MenuManager = {
 				id: 'zotero-rankings-context-clear',
 				label: 'Clear Manual Ranking',
 				handler: handlers.onClearManual,
+				condition: () => true  // Always show
+			},
+			{
+				id: 'zotero-rankings-context-write-extra',
+				label: 'Write Rankings to Extra Field',
+				handler: handlers.onWriteToExtra,
 				condition: () => true  // Always show
 			}
 		];

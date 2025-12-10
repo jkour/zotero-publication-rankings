@@ -72,6 +72,7 @@ var ColumnManager = {
 	/**
 	 * Data provider callback for the ranking column
 	 * Returns ranking with sort prefix for alphabetical ordering
+	 * Cache now stores structured data (array) instead of string
 	 * 
 	 * @param {Object} item - Zotero item
 	 * @param {string} dataKey - Column data key
@@ -83,15 +84,20 @@ var ColumnManager = {
 	 */
 	dataProvider: function(item, dataKey) {
 		const itemID = item.id;
-		let ranking;
+		let rankingData;
 		
-		// Use cache if available
+		// Use cache if available (cache stores array of ranking objects)
 		if (!this.rankingCache.has(itemID)) {
-			ranking = RankingEngine.getRanking(item);
-			this.rankingCache.set(itemID, ranking);
+			// Get structured ranking data from engine
+			rankingData = RankingEngine.getRankingArray(item, false);
+			this.rankingCache.set(itemID, rankingData);
 		} else {
-			ranking = this.rankingCache.get(itemID);
+			rankingData = this.rankingCache.get(itemID);
 		}
+		
+		// Convert structured data to display string
+		// rankingData format: [{database: "sjr", ranking: "Q1 0.85", color: "#color"}, ...]
+		const ranking = this.formatRankingForDisplay(rankingData);
 		
 		// Zotero sorts alphabetically by dataProvider return value
 		// Prepend numeric sort value to force correct ordering
@@ -284,27 +290,84 @@ var ColumnManager = {
 	
 	/**
 	 * Get cached ranking for an item without recalculating
+	 * Returns raw structured data (array of ranking objects)
 	 * 
 	 * @param {number} itemID - Zotero item ID
-	 * @returns {string|undefined} Cached ranking or undefined
+	 * @returns {Array|undefined} Cached ranking array or undefined
 	 * 
 	 * @example
-	 * var ranking = ColumnManager.getCachedRanking(12345);
+	 * var rankingData = ColumnManager.getCachedRanking(12345);
+	 * // Returns: ["sjr,Q1 0.85,#color", "core,A*,#color"] or undefined
 	 */
 	getCachedRanking: function(itemID) {
 		return this.rankingCache.get(itemID);
 	},
 	
 	/**
-	 * Set cached ranking for an item
+	 * Format structured ranking data for display
+	 * Converts array of ranking objects to display string
 	 * 
-	 * @param {number} itemID - Zotero item ID
-	 * @param {string} ranking - Ranking string to cache
+	 * @param {Array} rankingData - Array of ranking objects from cache
+	 * @returns {string} Formatted string for display
 	 * 
 	 * @example
-	 * ColumnManager.setCachedRanking(12345, "Q1 0.85");
+	 * formatRankingForDisplay([{database: "sjr", ranking: "Q1 0.85", color: "#color"}])
+	 * // Returns: "SJR: Q1 0.85"
 	 */
-	setCachedRanking: function(itemID, ranking) {
-		this.rankingCache.set(itemID, ranking);
+	formatRankingForDisplay: function(rankingData) {
+		if (!rankingData || rankingData.length === 0) {
+			return '';
+		}
+		
+		// Parse the comma-separated strings and format for display
+		// Format: "sjr,Q1 0.85,#color" -> "SJR: Q1 0.85"
+		var parts = [];
+		for (var i = 0; i < rankingData.length; i++) {
+			var entry = rankingData[i];
+			if (typeof entry === 'string') {
+				// Parse comma-separated format: "database,ranking,color"
+				var fields = entry.split(',');
+				if (fields.length >= 2) {
+					var db = fields[0].toUpperCase();
+					var rank = fields[1].trim();
+					parts.push(db + ': ' + rank);
+				}
+			}
+		}
+		
+		return parts.join(' ');
+	},
+	
+	/**
+	 * Get cached ranking for an item, formatted for display
+	 * Used by other modules that need the ranking string
+	 * 
+	 * @param {number} itemID - Zotero item ID
+	 * @returns {string|undefined} Formatted ranking string or undefined
+	 * 
+	 * @example
+	 * var ranking = ColumnManager.getCachedRankingForItem(12345);
+	 * // Returns: "SJR: Q1 0.85 CORE: A*" or undefined
+	 */
+	getCachedRankingForItem: function(itemID) {
+		var rankingData = this.rankingCache.get(itemID);
+		if (!rankingData) {
+			return undefined;
+		}
+		return this.formatRankingForDisplay(rankingData);
+	},
+	
+	/**
+	 * Set cached ranking for an item
+	 * Now stores structured data (array) instead of string
+	 * 
+	 * @param {number} itemID - Zotero item ID
+	 * @param {Array} rankingData - Array of ranking strings to cache
+	 * 
+	 * @example
+	 * ColumnManager.setCachedRanking(12345, ["sjr,Q1 0.85,#color"]);
+	 */
+	setCachedRanking: function(itemID, rankingData) {
+		this.rankingCache.set(itemID, rankingData);
 	}
 };

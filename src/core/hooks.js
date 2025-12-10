@@ -15,7 +15,7 @@
  * - Easier to maintain and test
  */
 
-/* global Zotero, ZoteroRankings, ManualOverrides, Services */
+/* global Zotero, ZoteroRankings, ManualOverrides, RankingActions, Services */
 
 var Hooks = {
 	/**
@@ -66,7 +66,7 @@ var Hooks = {
 	 * @param {string} params.rootURI - Root URI of the extension
 	 * @param {number} reason - Shutdown reason constant
 	 */
-	onShutdown({ id, version, rootURI }, reason) {
+	async onShutdown({ id, version, rootURI }, reason) {
 		// Skip cleanup on app shutdown for better performance
 		// APP_SHUTDOWN is a global constant from bootstrap context
 		if (reason === APP_SHUTDOWN) {
@@ -74,6 +74,10 @@ var Hooks = {
 		}
 		
 		Zotero.debug("Publication Rankings: Shutting down plugin");
+		
+		// Clean up ranking entries from Extra fields before unload
+		Zotero.debug("Publication Rankings: Cleaning up ranking entries from Extra fields");
+		await RankingActions.cleanupAllRankingsFromExtra();
 		
 		if (Zotero.SJRCoreRankings) {
 			// Remove UI from all windows and clean up observers
